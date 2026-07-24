@@ -82,6 +82,20 @@ Las decisiones resueltas complementarias están en:
 
 - Toda regla financiera debe tener pruebas automatizadas.
 
+## Idioma y documentación
+
+- La documentación funcional y los manuales se redactan en español.
+
+- Los mensajes de commit se redactan en español.
+
+- Se permite conservar términos técnicos, nombres de clases, comandos y convenciones de código en inglés.
+
+- Toda nueva decisión debe agregarse al historial documental.
+
+- Toda funcionalidad terminada debe indicar su impacto en manuales.
+
+- No actualizar manuales con funciones que todavía no estén implementadas y probadas.
+
 ## Forma de trabajo
 
 Antes de modificar código:
