@@ -109,4 +109,4 @@ Cada registro debe contener:
   - Manual técnico;
   - Guía rápida;
   - Manual de incidencias.
-- **Commit relacionado:** pendiente de registrar
+- **Commit relacionado:** `67e41fe` — docs: documentar el modelo conceptual y las decisiones de datos
