@@ -18,7 +18,11 @@ El producto contempla:
 
 ## Fuente documental principal
 
-Antes de planear o implementar una función, revisar:
+El índice canónico de documentación es `docs/00-index.md`. Ningún agente debe usar rutas de carpetas distintas a las declaradas ahí.
+
+La estructura documental oficial es:
+
+- `docs/00-index.md`
 
 - `docs/00-product/`
 
@@ -30,13 +34,21 @@ Antes de planear o implementar una función, revisar:
 
 - `docs/04-database/`
 
+- `docs/05-api/`
+
 - `docs/06-architecture/`
 
 - `docs/07-decisions/`
 
-El documento maestro actual es:
+- `docs/archive/`
 
-- `docs/01-requirements/CREDIMEX_Documento_Maestro_v1.2.md`
+El documento maestro vigente es:
+
+- `docs/01-requirements/CREDIMEX_Documento_Maestro_Producto_y_Desarrollo_v1.2.md`
+
+Las decisiones resueltas complementarias están en:
+
+- `docs/01-requirements/CREDIMEX_Decisiones_Resueltas_v1.3.md`
 
 ## Reglas obligatorias
 
