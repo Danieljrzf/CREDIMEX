@@ -159,4 +159,4 @@ Cada registro debe contener:
   - Manual técnico;
   - Guía rápida;
   - Manual de incidencias.
-- **Commit relacionado:** pendiente de registrar
+- **Commit relacionado:** `b795cdf` — docs: cerrar el modelo financiero y las reglas operativas v1.5
