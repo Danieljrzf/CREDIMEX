@@ -1,9 +1,15 @@
 # CREDIMEX — Catálogo de entidades (modelo conceptual)
 
-**Estado:** Aprobado (Fase 3A)  
-**Alcance:** Modelo conceptual. Sin tipos SQL.  
+**Estado:** Aprobado (Fase 3A)
+**Alcance:** Modelo conceptual. Sin tipos SQL.
 **Fuentes:** Documento maestro v1.2, Decisiones v1.3, Decisiones modelo v1.4,
 Decisiones modelo v1.5 (D-33 a D-50), casos de uso y reglas de caja/jornada.
+
+**Modelo lógico (Fase 3A.2):** la materialización en tablas, columnas, claves
+y ERD está en D-54 a D-68 y en
+`docs/07-decisions/CREDIMEX_Decisiones_Modelo_Logico_v1.6.md`,
+`docs/04-database/inventario-tablas-logicas.md` y diccionarios asociados.
+Este catálogo conceptual **no se altera** por v1.6.
 
 Convención de mutabilidad:
 

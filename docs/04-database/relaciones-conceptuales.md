@@ -1,8 +1,13 @@
 # CREDIMEX — Relaciones conceptuales
 
-**Estado:** Aprobado (Fase 3A)  
+**Estado:** Aprobado (Fase 3A)
 **Alcance:** Cardinalidades, tablas intermedias y restricciones lógicas.
 Sin SQL.
+
+**Modelo lógico (Fase 3A.2):** claves, restricciones clasificadas y ERD
+detallado en `docs/04-database/claves-relaciones-restricciones.md` y
+`docs/04-database/erd-conceptual.md` (D-54 a D-68). Este documento
+conceptual **no se altera** por v1.6.
 
 ---
 

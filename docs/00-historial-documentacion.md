@@ -160,3 +160,40 @@ Cada registro debe contener:
   - Guía rápida;
   - Manual de incidencias.
 - **Commit relacionado:** `b795cdf` — docs: cerrar el modelo financiero y las reglas operativas v1.5
+
+### Versión 1.6
+
+- **Fecha:** 25 de julio de 2026
+- **Fase:** Fase 3A.2 — Modelo lógico de datos
+- **Archivos creados:**
+  - `docs/07-decisions/CREDIMEX_Decisiones_Modelo_Logico_v1.6.md`
+  - `docs/04-database/inventario-tablas-logicas.md`
+  - `docs/04-database/diccionario-identidad-clientes-rutas.md`
+  - `docs/04-database/diccionario-creditos-calendarios-pagos.md`
+  - `docs/04-database/diccionario-cobranza-caja-entregas.md`
+  - `docs/04-database/diccionario-libro-auditoria-procesos.md`
+  - `docs/04-database/claves-relaciones-restricciones.md`
+  - `docs/04-database/indices-conceptuales.md`
+  - `docs/04-database/erd-conceptual.md`
+  - `docs/04-database/riesgos-modelo-logico.md`
+- **Archivos modificados:**
+  - `docs/00-index.md`
+  - `docs/00-historial-documentacion.md`
+  - `docs/04-database/catalogo-entidades.md` (referencias cruzadas mínimas)
+  - `docs/04-database/relaciones-conceptuales.md` (referencias cruzadas mínimas)
+- **Decisiones agregadas:** D-54 a D-68
+- **Decisiones reemplazadas:** ninguna (complementan D-01 a D-53; materializan el inventario lógico)
+- **Contenido:**
+  - Inventario lógico (67 tablas candidatas).
+  - Diccionarios conceptuales de columnas por dominio.
+  - Claves, relaciones y restricciones clasificadas (BD / APP / TX / REC).
+  - Índices conceptuales.
+  - ERD Mermaid en cuatro dominios.
+  - Riesgos del modelo lógico.
+- **Pendientes:** deuda de redacción del maestro v1.2; modelo físico PostgreSQL.
+- **Impacto en manuales:** estas decisiones se utilizarán posteriormente para:
+  - Manual técnico;
+  - Manual de operación de caja;
+  - Manual de incidencias;
+  - Manual del administrador.
+- **Commit relacionado:** pendiente de registrar

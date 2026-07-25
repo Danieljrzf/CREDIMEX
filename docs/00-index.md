@@ -56,13 +56,21 @@ docs/
 | Relaciones conceptuales | `docs/04-database/relaciones-conceptuales.md` | Aprobado |
 | Modelo de movimientos financieros | `docs/04-database/modelo-movimientos-financieros.md` | Aprobado |
 | Riesgos y decisiones abiertas | `docs/04-database/riesgos-y-decisiones-abiertas.md` | Aprobado |
+| Decisiones de modelo lógico v1.6 | `docs/07-decisions/CREDIMEX_Decisiones_Modelo_Logico_v1.6.md` | Aprobado |
+| Inventario de tablas lógicas | `docs/04-database/inventario-tablas-logicas.md` | Aprobado |
+| Diccionario identidad, clientes y rutas | `docs/04-database/diccionario-identidad-clientes-rutas.md` | Aprobado |
+| Diccionario créditos, calendarios y pagos | `docs/04-database/diccionario-creditos-calendarios-pagos.md` | Aprobado |
+| Diccionario cobranza, caja y entregas | `docs/04-database/diccionario-cobranza-caja-entregas.md` | Aprobado |
+| Diccionario libro, auditoría y procesos | `docs/04-database/diccionario-libro-auditoria-procesos.md` | Aprobado |
+| Claves, relaciones y restricciones | `docs/04-database/claves-relaciones-restricciones.md` | Aprobado |
+| Índices conceptuales | `docs/04-database/indices-conceptuales.md` | Aprobado |
+| ERD conceptual | `docs/04-database/erd-conceptual.md` | Aprobado |
+| Riesgos del modelo lógico | `docs/04-database/riesgos-modelo-logico.md` | Aprobado |
 
 ## Documentos en construcción
 
 | Entregable | Ruta prevista | Estado |
 |---|---|---|
-| Diagrama entidad-relación | `docs/04-database/` | En construcción |
-| Diccionario de datos | `docs/04-database/` | En construcción |
 | Arquitectura técnica detallada | `docs/06-architecture/` | En construcción |
 | Contrato OpenAPI inicial | `docs/05-api/` | En construcción |
 | ADR adicionales | `docs/07-decisions/` | En construcción |
@@ -76,3 +84,4 @@ docs/
 - Las decisiones D-01 a D-20 están en `CREDIMEX_Decisiones_Resueltas_v1.3.md`.
 - Las decisiones D-21 a D-32 están en `CREDIMEX_Decisiones_Modelo_Datos_v1.4.md`.
 - Las decisiones D-33 a D-53 están en `CREDIMEX_Decisiones_Modelo_Datos_v1.5.md`.
+- Las decisiones D-54 a D-68 están en `CREDIMEX_Decisiones_Modelo_Logico_v1.6.md`.
