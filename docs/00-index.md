@@ -42,13 +42,17 @@ docs/
 | Historial documental | `docs/00-historial-documentacion.md` | Aprobado |
 | Decisiones resueltas v1.3 | `docs/01-requirements/CREDIMEX_Decisiones_Resueltas_v1.3.md` | Aprobado |
 | Decisiones de modelo de datos v1.4 | `docs/07-decisions/CREDIMEX_Decisiones_Modelo_Datos_v1.4.md` | Aprobado |
+| Decisiones de modelo de datos v1.5 | `docs/07-decisions/CREDIMEX_Decisiones_Modelo_Datos_v1.5.md` | Aprobado |
 | Diferencias de caja | `docs/01-requirements/cash-differences.md` | Aprobado |
 | Jornada del cobrador | `docs/01-requirements/collector-workday.md` | Aprobado |
+| Puesta en marcha y carga inicial | `docs/03-processes/puesta-en-marcha-carga-inicial.md` | Aprobado |
 | UC-24 — Registrar fondo entregado al cobrador | `docs/02-use-cases/UC-24-fondo-a-cobrador.md` | Aprobado |
 | UC-25 — Operar caja central | `docs/02-use-cases/UC-25-caja-central.md` | Aprobado |
 | UC-26 — Castigar crédito | `docs/02-use-cases/UC-26-castigar-credito.md` | Aprobado |
+| UC-27 — Excepción de permanencia de efectivo | `docs/02-use-cases/UC-27-excepcion-permanencia-efectivo.md` | Aprobado |
 | Catálogo de entidades | `docs/04-database/catalogo-entidades.md` | Aprobado |
 | Catálogo de estados | `docs/04-database/catalogo-estados.md` | Aprobado |
+| Catálogo de operaciones financieras | `docs/04-database/catalogo-operaciones-financieras.md` | Aprobado |
 | Relaciones conceptuales | `docs/04-database/relaciones-conceptuales.md` | Aprobado |
 | Modelo de movimientos financieros | `docs/04-database/modelo-movimientos-financieros.md` | Aprobado |
 | Riesgos y decisiones abiertas | `docs/04-database/riesgos-y-decisiones-abiertas.md` | Aprobado |
@@ -71,3 +75,4 @@ docs/
 - El código no debe iniciarse hasta recibir autorización expresa tras cerrar la Fase 3A.
 - Las decisiones D-01 a D-20 están en `CREDIMEX_Decisiones_Resueltas_v1.3.md`.
 - Las decisiones D-21 a D-32 están en `CREDIMEX_Decisiones_Modelo_Datos_v1.4.md`.
+- Las decisiones D-33 a D-53 están en `CREDIMEX_Decisiones_Modelo_Datos_v1.5.md`.

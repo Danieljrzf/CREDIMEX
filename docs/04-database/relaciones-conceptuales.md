@@ -77,15 +77,19 @@ Credito 1 ── 1 CuentaOperativa(SALDO_CREDITO)
 Credito 1 ── N Desembolso
 Desembolso 0..1 ── 1 ReservaEfectivo       (mientras PENDIENTE_CONFIRMACION)
 Desembolso (CONFIRMADO) 1 ── 1 Comision (LIQUIDADA)
-Desembolso (CONFIRMADO) 1 ── 1 OperacionFinanciera
+Desembolso (CONFIRMADO) 1 ── 1 OperacionFinanciera(DESEMBOLSO_CREDITO)
+Desembolso (CONFIRMADO) 0..1 ── OperacionFinanciera(PRIMER_PAGO_RETENIDO)
+  PRIMER_PAGO_RETENIDO.operacion_padre_id → DESEMBOLSO_CREDITO
 ```
 
-**Restricciones lógicas (D-31):**
+**Restricciones lógicas (D-31, D-35, D-36):**
 
 - Puede haber varios desembolsos `CANCELADO_ANTES_DE_ENTREGA`.
 - **Máximo un** desembolso `CONFIRMADO` por crédito.
+- Movimientos brutos de principal y comisión dentro de `DESEMBOLSO_CREDITO`.
 - Sin reverso ordinario del confirmado; solo
   `AJUSTE_ADMINISTRATIVO_DESEMBOLSO` (D-30).
+- El primer pago retenido es operación hija con folio e idempotencia propios.
 
 ---
 
@@ -115,19 +119,22 @@ CuentaReceptora 1 ── 1 CuentaOperativa(CUENTA_BANCARIA)
 ```text
 Credito(LIQUIDADO) 1 ── 1 Renovacion ── 1 Credito(nuevo)
 Credito 1 ── N Reestructuracion
+Reestructuracion 1 ── 1 OperacionFinanciera(REESTRUCTURACION_CREDITO)
 Reestructuracion ── crea VersionCondicionesCredito + Calendario(VIGENTE)
                     y marca Calendario anterior REEMPLAZADO
                     y cuotas vigentes CANCELADA_POR_REESTRUCTURA
+                    y SALDO_CREDITO + nuevo_interes (D-44)
 
 Credito 1 ── 0..1 CastigoCredito           (snapshot de saldo)
 Credito(CASTIGADO) 1 ── N RecuperacionCreditoCastigado
 Cliente 1 ── N RestriccionCliente
 ```
 
-**Restricciones (D-24):**
+**Restricciones (D-24, D-44):**
 
 - Recuperación reduce `SALDO_CREDITO`; no reactiva, no cuenta en máx. 5, no
   retira restricción, no habilita renovación.
+- Reestructura no crea crédito nuevo ni entrega dinero adicional.
 
 ---
 
@@ -139,9 +146,11 @@ Usuario(cobrador) 1 ── N JornadaCobrador
 
 CajaCentral 1 ── 1 CuentaOperativa(CAJA_CENTRAL)
 CajaCentral 1 ── N JornadaCajaCentral
+  UK lógica: (caja_central_id, fecha_operativa)
 
 JornadaCobrador 1 ── N OperacionFinanciera (del día)
 JornadaCobrador 1 ── N CorteCobrador       (versiones)
+JornadaCobrador 0..N ExcepcionPermanenciaEfectivo
 JornadaCajaCentral 1 ── N CorteCajaCentral
 
 EntregaEfectivo 1 ── 1 OperacionFinanciera (al confirmar)
@@ -151,10 +160,13 @@ Corte 0..N ── IncidenciaCaja
 
 **Restricciones:**
 
-- V1: una `CajaCentral` activa (D-29); supervisor/admin sin caja personal.
-- Entrega ordinaria al cobrador sale de `CAJA_CENTRAL` (D-25).
-- Orígenes comerciales abstractos no cargan `EFECTIVO_COBRADOR` directo.
-- Jornada nace `ABIERTA` de forma perezosa (D-22).
+- V1: varias `CajaCentral`; solo una `ACTIVA` (D-39); supervisor/admin sin
+  caja personal.
+- Entrega al cobrador siempre sale de `CAJA_CENTRAL` (D-50); motivo vía
+  `MotivoEntregaFondo`.
+- Diferencia en entrega: solo se mueve el importe recibido (D-47).
+- Jornada cobrador y jornada caja central nacen `ABIERTA` de forma perezosa
+  (D-22, D-40).
 
 ---
 
@@ -162,6 +174,9 @@ Corte 0..N ── IncidenciaCaja
 
 ```text
 OperacionFinanciera 1 ── N MovimientoCuenta
+OperacionFinanciera 0..1 ── OperacionFinanciera (operacion_padre_id)
+OperacionFinanciera 0..N EvidenciaOperacion
+OperacionFinanciera 0..1 ContraparteExterna (+ snapshots)
 MovimientoCuenta N ── 1 CuentaOperativa
 
 CuentaOperativa.tipos:
@@ -177,6 +192,8 @@ CuentaOperativa.tipos:
   transacción.
 - Transferencias internas: ≥2 movimientos, mismo folio de operación.
 - Signo: positivo aumenta; negativo disminuye.
+- Tipos de operación: catálogo cerrado (D-33).
+- `concepto` distingue asientos múltiples sobre la misma cuenta (D-35).
 
 ---
 
@@ -190,8 +207,10 @@ CuentaOperativa.tipos:
 | `AsignacionClienteRuta` | Cliente ↔ Ruta | historial de pertenencia |
 | `AsignacionTemporalCobranza` | Cobranza temporal | no polimórfica genérica |
 | `Renovacion` | Credito ↔ Credito | origen liquidado → nuevo |
-| `OperacionFinanciera` | Dominio ↔ Movimientos | folio común |
+| `OperacionFinanciera` | Dominio ↔ Movimientos | folio común; `operacion_padre_id` |
 | `IdempotenciaOperacion` | Clave ↔ resultado | reintentos |
+| `EvidenciaOperacion` | OperacionFinanciera ↔ archivo/texto | D-41 |
+| `ExcepcionPermanenciaEfectivo` | Cobrador ↔ jornada/corte | D-38, D-46 |
 
 ---
 

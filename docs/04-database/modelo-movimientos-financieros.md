@@ -3,8 +3,9 @@
 **Estado:** Aprobado (Fase 3A)  
 **Patrón:** Operaciones de dominio específicas + libro operativo común.  
 **Fuentes:** Decisiones v1.3 (D-04, D-11, D-17), Decisiones modelo v1.4
-(D-21 a D-32), UC-04, UC-05, UC-07, UC-09, UC-24, UC-25, UC-26,
-`cash-differences.md`.
+(D-21 a D-32), Decisiones modelo v1.5 (D-33 a D-50), UC-04, UC-05, UC-07,
+UC-09, UC-24, UC-25, UC-26, UC-27, `cash-differences.md`,
+`catalogo-operaciones-financieras.md`.
 
 ---
 
@@ -28,21 +29,24 @@
 Agrupa un hecho de negocio en un **folio** único.
 
 Datos conceptuales: tipo, folio, clave de idempotencia, usuarios, fecha
-operativa, estado lógico, motivo, referencias a entidades de dominio.
+operativa, estado lógico, motivo, medio (si aplica), `operacion_padre_id`
+opcional, referencias a entidades de dominio.
 
-Tipos relevantes (lista conceptual, no exhaustiva de códigos SQL):
+El tipo es un **catálogo cerrado de 20 códigos** (D-33). Lista canónica en
+`catalogo-operaciones-financieras.md`.
 
-- pago de crédito;
-- reverso de pago;
-- desembolso confirmado;
-- transferencia bancaria;
-- fondo a cobrador / entrega de efectivo;
-- gasto;
-- aportación / ingreso extraordinario (entrada a custodia);
-- depósito bancario manual;
-- retiro;
-- recuperación de crédito castigado;
-- `AJUSTE_ADMINISTRATIVO_DESEMBOLSO` (D-30).
+Familias:
+
+- crédito y desembolso (`DESEMBOLSO_CREDITO`, `PRIMER_PAGO_RETENIDO`,
+  `PAGO`, `REVERSO_PAGO`, `REESTRUCTURACION_CREDITO`,
+  `RECUPERACION_CREDITO_CASTIGADO`, `AJUSTE_ADMINISTRATIVO_DESEMBOLSO`);
+- caja del cobrador (`ENTREGA_EFECTIVO_A_COBRADOR`,
+  `ENTREGA_EFECTIVO_A_CAJA_CENTRAL`, `GASTO_RUTA`, `REPOSICION_FALTANTE`,
+  `AJUSTE_EFECTIVO_COBRADOR`);
+- caja central y banco (`APORTACION_CAPITAL`, `INGRESO_EXTRAORDINARIO`,
+  `DEPOSITO_BANCARIO_MANUAL`, `RETIRO_BANCARIO_A_CAJA_CENTRAL`,
+  `RETIRO_CAJA_CENTRAL`, `GASTO_CAJA_CENTRAL`, `AJUSTE_CAJA_CENTRAL`);
+- migración (`CARGA_INICIAL_SALDO`).
 
 ### CuentaOperativa
 
@@ -64,12 +68,14 @@ Registro append-only:
 - `operacion` (folio);
 - `cuenta`;
 - `importe_con_signo` (centavos);
+- `concepto` (opcional; obligatorio cuando hay varios asientos sobre la
+  misma cuenta en la misma operación);
 - metadatos.
 
 Transferencias internas: **al menos dos** movimientos con el mismo folio.
 
 Entradas/salidas externas: movimiento sobre la cuenta de custodia real,
-acompañado de origen comercial, documento y motivo.
+acompañado de contraparte conceptual, documento y motivo.
 
 ### ReservaEfectivo (D-26)
 
@@ -109,7 +115,7 @@ Reglas:
 - nunca cambian sin movimiento (salvo creación en cero);
 - reconciliables contra la suma del libro;
 - el atraso se recalcula tras pagos, reversos, reestructuras, cambios de
-  calendario y proceso diario (D-28).
+  calendario y proceso diario (D-28, D-37).
 
 ---
 
@@ -166,7 +172,7 @@ total_a_pagar = monto + interés
 
 ---
 
-## 8. Ejemplos — modalidades de desembolso
+## 8. Ejemplos — modalidades de desembolso (movimientos brutos, D-35)
 
 Supuesto: monto 500_000 centavos ($5,000); comisión 100_000 ($1,000);
 interés según plan; `total_a_pagar = monto + interés`.
@@ -174,47 +180,61 @@ interés según plan; `total_a_pagar = monto + interés`.
 Al confirmar siempre:
 
 ```text
-SALDO_CREDITO + total_a_pagar
+OperacionFinanciera: DESEMBOLSO_CREDITO
+SALDO_CREDITO + total_a_pagar          # concepto ACTIVACION_SALDO
 Comision LIQUIDADA
 ReservaEfectivo → CONSUMIDA
 Credito → ACTIVO
+Desembolso guarda modalidad y efectivo_neto
 ```
+
+La comisión **siempre** genera `MovimientoCuenta` con concepto
+`COBRO_COMISION`, aunque el neto entregado la absorba.
 
 ### Modalidad 1 — Préstamo completo y comisión aparte
 
-La comisión se registra y liquida **en la misma operación**, no queda pendiente.
-
-Efectivo del cobrador (ilustrativo):
-
 ```text
-EFECTIVO_COBRADOR - monto          # entrega el préstamo completo
-EFECTIVO_COBRADOR + comision       # recibe comisión en efectivo en el mismo acto
+EFECTIVO_COBRADOR - monto      # DESEMBOLSO_PRINCIPAL
+EFECTIVO_COBRADOR + comision   # COBRO_COMISION
 ```
 
 Neto de efectivo del cobrador: `- monto + comision`.
 
 ### Modalidad 2 — Comisión descontada del dinero entregado
 
+Aunque el cliente recibe `monto - comision`, los asientos son brutos:
+
 ```text
-EFECTIVO_COBRADOR - (monto - comision)   # neto entregado al cliente
+EFECTIVO_COBRADOR - monto      # DESEMBOLSO_PRINCIPAL
+EFECTIVO_COBRADOR + comision   # COBRO_COMISION
 ```
 
-La comisión se liquida sin entrada separada de efectivo (ya descontada).
+Efectivo neto: `- (monto - comision)`. Ejemplo: −5 000 + 1 000 = −4 000.
 
 ### Modalidad 3 — Comisión y primer pago descontados
 
+Supuesto adicional: primer pago retenido 22_500 centavos ($225).
+
 ```text
-neto_cliente = monto - comision - primer_pago
-EFECTIVO_COBRADOR - neto_cliente
-SALDO_CREDITO - primer_pago              # además del + total_a_pagar
+OperacionFinanciera: DESEMBOLSO_CREDITO
+EFECTIVO_COBRADOR - monto      # DESEMBOLSO_PRINCIPAL
+EFECTIVO_COBRADOR + comision   # COBRO_COMISION
+SALDO_CREDITO     + total_a_pagar
+
+OperacionFinanciera: PRIMER_PAGO_RETENIDO
+  operacion_padre_id → DESEMBOLSO_CREDITO
+EFECTIVO_COBRADOR + primer_pago
+SALDO_CREDITO     - primer_pago
++ Pago (medio RETENIDO_DESEMBOLSO)
++ AplicacionPagoCuota
++ Ticket «PRIMER PAGO RETENIDO» (D-45)
 ```
 
-El primer pago retenido genera también `Pago` + `AplicacionPagoCuota` + ticket
-si aplica, dentro de la misma `OperacionFinanciera` de desembolso o operación
-hija ligada al mismo folio lógico.
+Efectivo neto entregado: `monto - comision - primer_pago`
+(ejemplo: 5 000 − 1 000 − 225 = 3 775 → movimiento neto −3 775).
 
-Antes de confirmar: `ReservaEfectivo` por el efectivo que se espera salir del
-cobrador según la modalidad.
+Antes de confirmar: `ReservaEfectivo` por el efectivo neto que se espera
+salir del cobrador según la modalidad.
 
 ---
 
@@ -223,7 +243,7 @@ cobrador según la modalidad.
 ### Pago en efectivo
 
 ```text
-OperacionFinanciera: PAGO
+OperacionFinanciera: PAGO (medio EFECTIVO)
 EFECTIVO_COBRADOR + importe
 SALDO_CREDITO     - importe
 + Pago CONFIRMADO
@@ -237,7 +257,7 @@ Requiere jornada `ABIERTA` (o `REABIERTA` autorizada).
 ### Transferencia bancaria
 
 ```text
-OperacionFinanciera: TRANSFERENCIA
+OperacionFinanciera: PAGO (medio TRANSFERENCIA)
 CUENTA_BANCARIA + importe
 SALDO_CREDITO   - importe
 + TransferenciaBancaria + Pago
@@ -250,49 +270,72 @@ SALDO_CREDITO   - importe
 
 ```text
 OperacionFinanciera: REVERSO_PAGO
+  operacion_padre_id → PAGO original
 EFECTIVO_COBRADOR - importe
 SALDO_CREDITO     + importe
 Pago → REVERTIDO
 ```
 
+### Reverso de primer pago retenido (D-45)
+
+```text
+OperacionFinanciera: REVERSO_PAGO
+  operacion_padre_id → PRIMER_PAGO_RETENIDO
+EFECTIVO_COBRADOR - importe
+SALDO_CREDITO     + importe
+```
+
+Requiere devolución física al cliente; solo supervisor/administrador.
+
 ---
 
 ## 10. Ejemplos — fondos y entregas
 
-### Entrada externa a custodia (D-25)
+### Entrada externa a custodia (D-25, D-50)
 
-Origen comercial `APORTACION_REGISTRADA` / `RECUPERACION` /
-`INGRESO_EXTRAORDINARIO_AUTORIZADO`:
+`APORTACION_CAPITAL` / `INGRESO_EXTRAORDINARIO` (y reposiciones):
 
 ```text
 CAJA_CENTRAL + importe
 # o CUENTA_BANCARIA + importe
-+ documento, motivo y origen comercial
++ documento, motivo y contraparte opcional
 ```
 
-No se carga `EFECTIVO_COBRADOR` desde el origen abstracto.
+No se carga `EFECTIVO_COBRADOR` desde un origen abstracto.
 
-### Fondo ordinario al cobrador (UC-24, origen CAJA_CENTRAL)
+### Fondo ordinario al cobrador (UC-24, D-50)
 
 Tras doble confirmación:
 
 ```text
-OperacionFinanciera: FONDO_A_COBRADOR
+OperacionFinanciera: ENTREGA_EFECTIVO_A_COBRADOR
 CAJA_CENTRAL      - importe
 EFECTIVO_COBRADOR + importe
++ motivo (FONDO_INICIAL | FONDO_ADICIONAL | PARA_DESEMBOLSO |
+         OPERACION_GENERAL | OTRO)
 ```
 
 Misma operación / folio; usuarios, fecha, importe y auditoría.
 
-### Entrega cobrador → caja central (UC-09)
+### Entrega cobrador → caja central (UC-09, D-47)
+
+Sin diferencia:
 
 ```text
+OperacionFinanciera: ENTREGA_EFECTIVO_A_CAJA_CENTRAL
 EFECTIVO_COBRADOR - importe
 CAJA_CENTRAL      + importe
+EntregaEfectivo → CONFIRMADA
 ```
 
-Si hay diferencia: `IncidenciaCaja`; sin movimientos definitivos de cuadre
-automático.
+Con diferencia (declarado 10 000, recibido 9 500):
+
+```text
+EFECTIVO_COBRADOR -9500
+CAJA_CENTRAL      +9500
+EntregaEfectivo → CONFIRMADA_CON_DIFERENCIA
++ IncidenciaCaja por 500 (permanece en cuenta origen)
+```
 
 ---
 
@@ -321,63 +364,112 @@ Efectos **no** permitidos:
 diferencia = efectivo_contado - efectivo_esperado
 ```
 
-1. Se crea `IncidenciaCaja` (`ABIERTA`).
+1. Se crea `IncidenciaCaja` (`ABIERTA`). **No** genera `OperacionFinanciera`.
 2. No se ajustan saldos automáticamente.
 3. Recuperación de faltante:
 
 ```text
+OperacionFinanciera: REPOSICION_FALTANTE
 EFECTIVO_COBRADOR o CAJA_CENTRAL + importe_recuperado
 # según quien reponga, documentado
 ```
 
-4. Sobrante: resolución auditada que asigna el excedente a su origen correcto
-   o lo registra según decisión administrativa.
+4. Sobrante: resolución auditada vía `AJUSTE_EFECTIVO_COBRADOR` o
+   `AJUSTE_CAJA_CENTRAL` (con incidencia). Solo el **administrador** aprueba
+   y ejecuta el ajuste (D-52); el supervisor puede documentar y solicitar.
 5. **Prohibido** revertir o editar pagos para cuadrar.
 
 ---
 
-## 13. Ajuste administrativo de desembolso (D-30)
+## 13. Ajuste administrativo de desembolso (D-30, D-41)
 
 Tipo: `AJUSTE_ADMINISTRATIVO_DESEMBOLSO`.
 
-Solo administrador. Requiere incidencia, motivo, evidencia u observación,
-movimientos compensatorios y auditoría completa.
+Solo administrador. Requiere incidencia, motivo, descripción, importe,
+operación afectada, administrador, fecha; evidencia según `tipo_sustento`
+(`SIN_DOCUMENTO` / `CON_DOCUMENTO`).
 
 No elimina ni revierte físicamente el desembolso `CONFIRMADO`.
 
 Los movimientos compensatorios dependen del error detectado (efectivo,
-comisión, saldo) y quedan ligados a la incidencia.
+comisión, saldo) y quedan ligados a la incidencia vía
+`operacion_padre_id` / `incidencia_caja_id`.
 
 ---
 
-## 14. Gastos, depósitos y retiros (caja central)
+## 14. Gastos, depósitos, retiros y carga inicial
 
 ### Gasto autorizado (ruta o central)
 
 ```text
-EFECTIVO_COBRADOR - importe   # o CAJA_CENTRAL - importe
+EFECTIVO_COBRADOR - importe   # GASTO_RUTA
+# o CAJA_CENTRAL - importe    # GASTO_CAJA_CENTRAL
 + Gasto + autorización
 ```
 
 ### Depósito bancario manual
 
 ```text
+OperacionFinanciera: DEPOSITO_BANCARIO_MANUAL
 CAJA_CENTRAL    - importe
 CUENTA_BANCARIA + importe
 ```
 
 Sin conciliación bancaria automática.
 
-### Retiro autorizado
+### Retiro bancario a caja central
 
 ```text
+OperacionFinanciera: RETIRO_BANCARIO_A_CAJA_CENTRAL
+CUENTA_BANCARIA - importe
+CAJA_CENTRAL    + importe
+```
+
+### Retiro autorizado de caja central
+
+```text
+OperacionFinanciera: RETIRO_CAJA_CENTRAL
 CAJA_CENTRAL - importe
 + documento y motivo
 ```
 
+### Carga inicial de saldos (D-42, D-51)
+
+```text
+OperacionFinanciera: CARGA_INICIAL_SALDO
+CAJA_CENTRAL o EFECTIVO_COBRADOR o CUENTA_BANCARIA + importe
+# u otra CuentaOperativa autorizada en migración documentada
++ evidencia obligatoria, motivo, fecha/hora de corte,
+  responsable del conteo, administrador, referencia_lote, idempotencia
+```
+
+Una operación por cuenta y saldo cargado; varias pueden compartir lote.
+Solo durante la puesta en marcha; bloqueada después del primer cierre de
+fecha operativa. No es aportación nueva. Correcciones posteriores: ajuste
+administrativo. Proceso:
+`docs/03-processes/puesta-en-marcha-carga-inicial.md`.
+
 ---
 
-## 15. Orquestación transaccional mínima (pago)
+## 15. Reestructuración (D-44)
+
+```text
+nuevo_interes = saldo_pendiente × tasa_del_nuevo_plazo
+nuevo_total   = saldo_pendiente + nuevo_interes
+
+OperacionFinanciera: REESTRUCTURACION_CREDITO
+SALDO_CREDITO + nuevo_interes    # concepto INTERES_REESTRUCTURA
++ VersionCondicionesCredito
++ Calendario VIGENTE (anterior REEMPLAZADO)
++ cuotas pendientes → CANCELADA_POR_REESTRUCTURA
++ recálculo atraso
+```
+
+No crea crédito nuevo ni entrega dinero adicional.
+
+---
+
+## 16. Orquestación transaccional mínima (pago)
 
 En una sola transacción:
 

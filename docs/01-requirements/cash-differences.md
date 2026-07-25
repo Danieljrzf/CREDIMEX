@@ -64,6 +64,15 @@ Toda diferencia distinta de cero genera una **incidencia** con:
 La incidencia es un registro append-only: no se elimina; se resuelve mediante
 movimientos y decisiones auditadas.
 
+**Registrar una incidencia no genera `OperacionFinanciera`.** Los códigos que
+pueden resolverla son, según el caso:
+
+- `REPOSICION_FALTANTE`;
+- `AJUSTE_EFECTIVO_COBRADOR`;
+- `AJUSTE_CAJA_CENTRAL`;
+- entrega adicional confirmada;
+- corrección auditada del conteo.
+
 ## 4. Responsable
 
 Cada incidencia debe tener un **responsable determinado** por el supervisor o el
@@ -75,16 +84,33 @@ quedar en revisión hasta esclarecer el origen.
 
 ## 5. Recuperación
 
-La **recuperación** de un faltante se realiza mediante un movimiento de efectivo
-explícito y auditado (por ejemplo, reposición del responsable). La recuperación:
+La **recuperación** de un faltante se realiza mediante la operación
+`REPOSICION_FALTANTE` (movimiento de efectivo explícito y auditado; por
+ejemplo, reposición del responsable). La recuperación:
 
 - se registra como movimiento independiente;
 - referencia la incidencia que la origina;
 - no modifica los pagos ni los movimientos financieros previos;
 - cierra la incidencia cuando el importe recuperado cubre el faltante.
 
-Para un sobrante, la resolución equivalente consiste en asignar el excedente a su
-origen correcto o registrarlo según la decisión auditada del administrador.
+Para un sobrante, la resolución equivalente consiste en asignar el excedente a
+su origen correcto o registrarlo mediante `AJUSTE_EFECTIVO_COBRADOR` /
+`AJUSTE_CAJA_CENTRAL` según la decisión auditada del **administrador** (D-52).
+
+El supervisor puede registrar la incidencia, documentar la diferencia,
+adjuntar evidencia, solicitar el ajuste y darle seguimiento. El supervisor
+**no** puede aprobar el ajuste, ejecutar `MovimientoCuenta` ni modificar
+directamente saldos proyectados.
+
+Todo ajuste de efectivo requiere: incidencia, motivo, administrador, importe,
+cuenta afectada, evidencia u observación y auditoría completa.
+
+## 5 bis. Diferencia en entrega de efectivo (D-47)
+
+Cuando una `EntregaEfectivo` tiene declarado ≠ recibido, ambos usuarios
+confirman el importe realmente recibido. **Solo el importe recibido** se mueve
+entre cuentas. La diferencia permanece en la cuenta origen hasta resolver la
+incidencia. La entrega termina en `CONFIRMADA_CON_DIFERENCIA`.
 
 ## 6. Efecto en el saldo inicial
 

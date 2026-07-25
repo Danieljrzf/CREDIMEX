@@ -3,7 +3,7 @@
 **Estado:** Aprobado (Fase 3A)  
 **Alcance:** Modelo conceptual. Sin tipos SQL.  
 **Fuentes:** Documento maestro v1.2, Decisiones v1.3, Decisiones modelo v1.4,
-casos de uso y reglas de caja/jornada.
+Decisiones modelo v1.5 (D-33 a D-50), casos de uso y reglas de caja/jornada.
 
 Convención de mutabilidad:
 
@@ -222,12 +222,13 @@ Convención de mutabilidad:
 
 - **Objetivo:** Intento/entrega del préstamo.
 - **Datos conceptuales:** modalidad, importes de principal/comisión/primer
-  pago retenido, estado, reserva asociada.
-- **Relaciones:** N:1 crédito; 0..1 operación financiera al confirmar;
-  0..1 comisión liquidada.
+  pago retenido, `efectivo_neto`, estado, reserva asociada.
+- **Relaciones:** N:1 crédito; 1 operación `DESEMBOLSO_CREDITO` al
+  confirmar; 0..1 `PRIMER_PAGO_RETENIDO` hija; 0..1 comisión liquidada.
 - **Mutabilidad:** mutable de estado hasta terminal; registro append-only de
   hechos confirmados.
-- **Reglas:** D-17, D-26, D-31; máximo un `CONFIRMADO` por crédito.
+- **Reglas:** D-17, D-26, D-31, D-35, D-36; máximo un `CONFIRMADO` por
+  crédito; movimientos brutos de principal y comisión.
 
 ### Comision
 
@@ -248,11 +249,14 @@ Convención de mutabilidad:
 ### Reestructuracion
 
 - **Objetivo:** Evento de cambio de condiciones sobre saldo pendiente.
-- **Datos conceptuales:** saldo base, nuevo plazo/tasa, motivo, autorizador.
-- **Relaciones:** N:1 crédito; genera nueva `VersionCondicionesCredito` y
+- **Datos conceptuales:** saldo base, nuevo plazo/tasa, `nuevo_interes`,
+  motivo, autorizador.
+- **Relaciones:** N:1 crédito; 1:1 `OperacionFinanciera`
+  `REESTRUCTURACION_CREDITO`; genera nueva `VersionCondicionesCredito` y
   nuevo `Calendario`.
 - **Mutabilidad:** append-only.
-- **Reglas:** D-10; no es estado del crédito.
+- **Reglas:** D-10, D-44; no es estado del crédito; solo mueve
+  `SALDO_CREDITO + nuevo_interes`.
 
 ### CastigoCredito
 
@@ -306,11 +310,13 @@ Convención de mutabilidad:
 ### Pago
 
 - **Objetivo:** Abono al crédito.
-- **Datos conceptuales:** importe, medio, folio, saldos ant/nuevo, estado,
-  clave de idempotencia.
-- **Relaciones:** N:1 crédito; 1:N aplicaciones; 0..1 reverso; 0..N tickets.
+- **Datos conceptuales:** importe, medio (`EFECTIVO` | `TRANSFERENCIA` |
+  `RETENIDO_DESEMBOLSO`), folio, saldos ant/nuevo, estado, clave de
+  idempotencia.
+- **Relaciones:** N:1 crédito; 1:N aplicaciones; 0..1 reverso; 0..N tickets;
+  1:1 `OperacionFinanciera` (`PAGO` o `PRIMER_PAGO_RETENIDO`).
 - **Mutabilidad:** append-only (estado a `REVERTIDO` sin borrar).
-- **Reglas:** RN-PAG; no modificar para cuadrar caja.
+- **Reglas:** RN-PAG; D-49; no modificar para cuadrar caja.
 
 ### ReversoPago
 
@@ -341,7 +347,9 @@ Convención de mutabilidad:
 ### Ticket
 
 - **Objetivo:** Comprobante de pago.
-- **Datos conceptuales:** folio, datos RN-TIC, estado impresión.
+- **Datos conceptuales:** folio, datos RN-TIC, estado impresión; para pago
+  retenido: leyenda «PRIMER PAGO RETENIDO», medio `RETENIDO_DESEMBOLSO` y
+  desembolso relacionado (D-45).
 - **Relaciones:** N:1 pago; 1:N reimpresiones.
 - **Mutabilidad:** append-only.
 - **Reglas:** solo tras confirmación del servidor.
@@ -381,46 +389,51 @@ Convención de mutabilidad:
 ### CajaCentral
 
 - **Objetivo:** Contenedor de tesorería operativa.
-- **Datos conceptuales:** `codigo`, `nombre`, `estado` (D-29).
+- **Datos conceptuales:** `codigo` (único), `nombre`, `estado` (D-29, D-39).
 - **Relaciones:** 1:1 `CuentaOperativa` `CAJA_CENTRAL`; 1:N jornadas/cortes.
 - **Mutabilidad:** mutable.
-- **Reglas:** una activa en V1; sin `sucursal_id` aún.
+- **Reglas:** varias filas permitidas; solo una `ACTIVA` en V1; sin
+  `sucursal_id`; inactivación solo con saldo cero y sin jornada abierta.
 
 ### JornadaCobrador
 
 - **Objetivo:** Agrupar operaciones del cobrador por fecha operativa.
 - **Datos conceptuales:** cobrador, fecha, estado, saldo inicial autorizado,
-  noches de permanencia.
-- **Relaciones:** N:1 usuario cobrador; 1:N operaciones del día; 1:N cortes.
+  noches de permanencia (racha con efectivo conservado > 0).
+- **Relaciones:** N:1 usuario cobrador; 1:N operaciones del día; 1:N cortes;
+  0..N `ExcepcionPermanenciaEfectivo`.
 - **Mutabilidad:** mutable de estado.
-- **Reglas:** D-22; creación perezosa; UK (cobrador, fecha).
+- **Reglas:** D-22; creación perezosa; UK (cobrador, fecha); D-38/D-46.
 
 ### JornadaCajaCentral
 
 - **Objetivo:** Día operativo de la caja central.
-- **Datos conceptuales:** caja, fecha, saldo inicial, estado.
+- **Datos conceptuales:** caja, fecha, saldo inicial (snapshot del corte
+  anterior), estado.
 - **Relaciones:** N:1 caja central; 1:N operaciones; 1:N cortes.
 - **Mutabilidad:** mutable de estado.
-- **Reglas:** UC-25.
+- **Reglas:** D-40; creación perezosa en `ABIERTA` con la primera operación;
+  UK (`caja_central`, `fecha_operativa`); no se persiste `PENDIENTE`.
 
 ### EntregaEfectivo
 
 - **Objetivo:** Transferencia física con doble confirmación (cobrador→central
   o fondo→cobrador).
-- **Datos conceptuales:** origen comercial, declarado, recibido, folio,
-  estado.
+- **Datos conceptuales:** motivo de entrega (si fondo), declarado, recibido,
+  folio, estado; `operacion_relacionada_id` opcional.
 - **Relaciones:** operación financiera; opcional incidencia.
 - **Mutabilidad:** mutable hasta confirmar/cancelar.
-- **Reglas:** UC-09, UC-24; D-25.
+- **Reglas:** UC-09, UC-24; D-47, D-50; solo se mueve el importe recibido.
 
-### OrigenComercialFondo
+### MotivoEntregaFondo
 
-- **Objetivo:** Catálogo de orígenes comerciales (no cuenta).
+- **Objetivo:** Catálogo de motivo de la entrega al cobrador (D-50).
 - **Datos conceptuales:**
-  `CAJA_CENTRAL` | `APORTACION_REGISTRADA` | `RECUPERACION` |
-  `INGRESO_EXTRAORDINARIO_AUTORIZADO`.
+  `FONDO_INICIAL` | `FONDO_ADICIONAL` | `PARA_DESEMBOLSO` |
+  `OPERACION_GENERAL` | `OTRO`.
 - **Mutabilidad:** catálogo.
-- **Reglas:** D-25; el dinero entra primero a custodia real.
+- **Reglas:** reemplaza `OrigenComercialFondo` en el flujo ordinario; la
+  entrega siempre sale de `CAJA_CENTRAL`.
 
 ### Gasto
 
@@ -433,10 +446,11 @@ Convención de mutabilidad:
 ### Aportacion / IngresoExtraordinario / DepositoBancarioManual / Retiro
 
 - **Objetivo:** Movimientos de tesorería de UC-25.
-- **Datos conceptuales:** importe, documento, motivo, cuenta de custodia.
+- **Datos conceptuales:** importe, documento, motivo, cuenta de custodia;
+  contraparte externa opcional.
 - **Relaciones:** operación financiera; `CAJA_CENTRAL` o `CUENTA_BANCARIA`.
 - **Mutabilidad:** append-only.
-- **Reglas:** D-25; sin integración bancaria automática.
+- **Reglas:** D-25, D-34; sin integración bancaria automática.
 
 ### IncidenciaCaja
 
@@ -484,12 +498,17 @@ Convención de mutabilidad:
 ### OperacionFinanciera
 
 - **Objetivo:** Folio lógico que agrupa movimientos e idempotencia.
-- **Datos conceptuales:** tipo, folio, clave idempotencia, actores, fecha
-  operativa, estado, motivo.
-- **Relaciones:** 1:N `MovimientoCuenta`; referencia a entidad de dominio.
+- **Datos conceptuales:** tipo (catálogo cerrado D-33), folio, clave
+  idempotencia, actores, fecha operativa, estado, motivo, medio (si aplica),
+  `operacion_padre_id` opcional, `incidencia_caja_id` opcional,
+  `jornada_cobrador_id` / `jornada_caja_central_id` opcionales, contraparte
+  opcional con snapshot de nombre y referencia; en carga inicial:
+  fecha/hora de corte, responsable del conteo, `referencia_lote` (D-51).
+- **Relaciones:** 1:N `MovimientoCuenta`; 0..N `EvidenciaOperacion`;
+  autorrelación padre/hija; referencia a entidad de dominio.
 - **Mutabilidad:** append-only de hechos; estado lógico controlado.
-- **Reglas:** tipos incluyen pago, desembolso, fondo, transferencia,
-  `AJUSTE_ADMINISTRATIVO_DESEMBOLSO` (D-30), etc.
+- **Reglas:** D-33 a D-50; ver
+  `catalogo-operaciones-financieras.md`.
 
 ### CuentaOperativa
 
@@ -506,11 +525,12 @@ Convención de mutabilidad:
 
 - **Objetivo:** Asiento append-only con signo.
 - **Datos conceptuales:** operación, cuenta, importe con signo (centavos),
-  metadatos.
+  `concepto` (opcional; obligatorio cuando hay varios asientos sobre la
+  misma cuenta en la misma operación), metadatos.
 - **Relaciones:** N:1 operación; N:1 cuenta.
 - **Mutabilidad:** append-only.
 - **Reglas:** positivo aumenta; negativo disminuye; transferencias ≥2
-  movimientos.
+  movimientos; D-35.
 
 ### IdempotenciaOperacion
 
@@ -519,6 +539,47 @@ Convención de mutabilidad:
 - **Relaciones:** 1:1 operación o resultado cacheado.
 - **Mutabilidad:** append-only / upsert controlado.
 - **Reglas:** maestro §4.4.
+
+### ContraparteExterna
+
+- **Objetivo:** Persona o institución externa a las operaciones de
+  tesorería (D-34, D-48).
+- **Datos conceptuales:** tipo (`APORTANTE` | `PROVEEDOR` | `CLIENTE` |
+  `INSTITUCION_FINANCIERA_EXTERNA` | `OTRO`), nombre, referencia,
+  documento opcional, teléfono opcional, observaciones, estado;
+  `cliente_id` obligatorio si tipo `CLIENTE`.
+- **Relaciones:** 1:N operaciones (opcional); N:1 `Cliente` si aplica.
+- **Mutabilidad:** mutable; sin borrado físico.
+- **Reglas:** cuentas bancarias propias = `CuentaReceptora`, no contraparte.
+
+### ExcepcionPermanenciaEfectivo
+
+- **Objetivo:** Autorización auditada de una cuarta noche (D-38, D-46,
+  UC-27).
+- **Datos conceptuales:** cobrador, importe autorizado, motivo, fecha
+  límite, observaciones, administrador, jornada/corte relacionados, estado.
+- **Relaciones:** N:1 cobrador; 0..1 jornada; 0..1 corte.
+- **Mutabilidad:** mutable de estado.
+- **Reglas:** solo una cuarta noche; no quinta; no altera disponible.
+
+### EvidenciaOperacion
+
+- **Objetivo:** Soporte documental o textual de una operación (D-41).
+- **Datos conceptuales:** `tipo_sustento` (`SIN_DOCUMENTO` |
+  `CON_DOCUMENTO`), tipo de evidencia, ruta de archivo privado opcional,
+  texto, usuario, fecha.
+- **Relaciones:** N:1 `OperacionFinanciera`.
+- **Mutabilidad:** append-only.
+- **Reglas:** archivo obligatorio si `CON_DOCUMENTO`.
+
+### EjecucionProcesoAtraso
+
+- **Objetivo:** Bitácora del recálculo diario o manual de atraso (D-37).
+- **Datos conceptuales:** inicio, fin, disparador (programado/manual),
+  usuario, créditos procesados, resultado.
+- **Relaciones:** —
+- **Mutabilidad:** append-only.
+- **Reglas:** no es `OperacionFinanciera`; no mueve dinero.
 
 ---
 
@@ -536,15 +597,24 @@ Convención de mutabilidad:
 ### ParametroSistema
 
 - **Objetivo:** Límites, horarios, máximos, incrementos.
-- **Datos conceptuales:** clave, valor, vigencia.
+- **Datos conceptuales:** clave, valor, vigencia (incluye hora y zona
+  horaria del proceso diario de atraso).
 - **Relaciones:** —
 - **Mutabilidad:** versionada.
-- **Reglas:** D-12, D-13, límite efectivo, noches.
+- **Reglas:** D-12, D-13, D-37, límite efectivo, noches.
 
 ### DiaFestivo
 
 - **Objetivo:** Día sin cuota programada.
 - **Datos conceptuales:** fecha, descripción.
 - **Relaciones:** —
-- **Mutabilidad:** mutable con advertencia si hay pagos.
-- **Reglas:** D-03; no genera `CuotaProgramada`.
+- **Mutabilidad:** mutable según D-53.
+- **Reglas:** D-03, D-53; no genera `CuotaProgramada`.
+  - Festivo **futuro:** vista previa; recalcular solo cuotas `PROGRAMADA`;
+    conservar número, orden e importes; ajustar fechas futuras y fecha
+    final; auditar; recalcular proyecciones.
+  - Fecha **actual o pasada:** no regenerar automáticamente cuotas
+    `PENDIENTE`, `PARCIALMENTE_CUBIERTA`, `CUBIERTA` o históricas; no
+    modificar pagos, atrasos o semáforos anteriores; puede aplicar a
+    calendarios nuevos; corrección histórica solo por proceso administrativo
+    extraordinario y auditado.

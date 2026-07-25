@@ -1,8 +1,8 @@
 # CREDIMEX — Catálogo de estados
 
 **Estado:** Aprobado (Fase 3A)  
-**Fuentes:** Decisiones v1.3, Decisiones modelo v1.4, `collector-workday.md`,
-casos de uso.
+**Fuentes:** Decisiones v1.3, Decisiones modelo v1.4, Decisiones modelo v1.5
+(D-33 a D-50), `collector-workday.md`, casos de uso.
 
 Para cada máquina: significado, estado inicial, transiciones, actor,
 terminalidad y operaciones bloqueadas.
@@ -160,11 +160,17 @@ Clasificaciones derivadas (caché D-28): `dias_atraso_actual`, `semaforo_actual`
 | `CANCELADA_POR_REESTRUCTURA` | Calendario reemplazado | Sí |
 
 - **Inicial:** `PROGRAMADA`
-- **Transiciones:** PROGRAMADA → PENDIENTE (por fecha operativa); PENDIENTE ↔
-  PARCIALMENTE_CUBIERTA → CUBIERTA; cualquiera vigente del calendario →
-  CANCELADA_POR_REESTRUCTURA
+- **Transiciones:** PROGRAMADA → PENDIENTE (por fecha operativa);
+  PROGRAMADA → PARCIALMENTE_CUBIERTA | CUBIERTA (pago retenido o anticipado,
+  D-43); PENDIENTE ↔ PARCIALMENTE_CUBIERTA → CUBIERTA; cualquiera vigente
+  del calendario → CANCELADA_POR_REESTRUCTURA
 - **Actor:** sistema (aplicación de pagos / proceso)
 - **Nota:** domingos y festivos **no generan filas**
+- **Festivos (D-53):** al agregar/retirar festivo futuro solo se recalculan
+  cuotas `PROGRAMADA` (conservan número, orden e importes; cambian fechas);
+  no se regeneran automáticamente cuotas `PENDIENTE`,
+  `PARCIALMENTE_CUBIERTA`, `CUBIERTA` ni históricas por cambios en fechas
+  actuales o pasadas
 
 ---
 
@@ -253,14 +259,17 @@ Estados **persistidos** (D-22):
 | Estado | Significado | Terminal |
 |---|---|---|
 | `PENDIENTE_RECEPCION` | Declarada; sin confirmar | No |
-| `CONFIRMADA` | Doble confirmación OK | Sí |
-| `CON_DIFERENCIA` | Declarado ≠ recibido | No |
+| `CONFIRMADA` | Doble confirmación OK; importes iguales | Sí |
+| `CONFIRMADA_CON_DIFERENCIA` | Confirmada con importe recibido ≠ declarado | Sí |
 | `CANCELADA` | Abortada | Sí |
 
 - **Inicial:** `PENDIENTE_RECEPCION`
 - **Actor:** declarante + receptor (doble confirmación)
-- **Bloquea:** sin `CONFIRMADA` no hay `MovimientoCuenta` definitivo de
-  transferencia entre cuentas
+- **Reglas D-47:** solo se mueve el importe recibido; la diferencia permanece
+  en la cuenta origen hasta resolver la incidencia
+- **Bloquea:** sin `CONFIRMADA` ni `CONFIRMADA_CON_DIFERENCIA` no hay
+  `MovimientoCuenta` definitivo de transferencia entre cuentas
+- **Nota:** el estado `CON_DIFERENCIA` deja de usarse
 
 ---
 
@@ -274,6 +283,9 @@ Estados **persistidos** (D-22):
 
 - **Actor:** supervisor / administrador
 - **Bloquea:** mientras abierta, no ajuste automático de saldos
+- **Ajustes de efectivo (D-52):** el supervisor puede documentar y solicitar;
+  solo el administrador aprueba y ejecuta `AJUSTE_EFECTIVO_COBRADOR` /
+  `AJUSTE_CAJA_CENTRAL`
 
 ---
 
@@ -299,14 +311,33 @@ Estados **persistidos** (D-22):
 | `ACTIVA` | Operable |
 | `INACTIVA` | Fuera de uso |
 
-- **V1:** una sola `ACTIVA` (D-29)
+- **V1:** varias filas permitidas; solo una `ACTIVA` (D-29, D-39)
+- **Inactivación:** solo con saldo cero y sin jornada abierta
 
 ---
 
 ## 19. JornadaCajaCentral
 
-Estados análogos a jornada de cobrador: `ABIERTA`, `EN_CORTE`, `CERRADA`,
-`REABIERTA`.
+Estados **persistidos** (D-40):
+
+| Estado | Significado | Terminal |
+|---|---|---|
+| `ABIERTA` | Acepta operaciones de tesorería ordinarias | No |
+| `EN_CORTE` | Corte en proceso | No |
+| `CERRADA` | Conciliada | No |
+| `REABIERTA` | Reapertura autorizada | No |
+
+- **Inicial persistido:** `ABIERTA` (la fila nace con la primera operación)
+- **`PENDIENTE`:** conceptual; **no se persiste**
+- **Unicidad:** `(caja_central, fecha_operativa)`
+- **Transiciones:**
+  - ABIERTA → EN_CORTE (inicia corte)
+  - EN_CORTE → ABIERTA (corte cancelado) | CERRADA (corte confirmado)
+  - CERRADA → REABIERTA (reapertura con motivo)
+  - REABIERTA → CERRADA (recorte)
+- **Actor:** administrador (y supervisor según política)
+- **Creación:** perezosa, en la misma transacción que la operación que la
+  origina
 
 ---
 
@@ -331,6 +362,7 @@ Estados análogos a jornada de cobrador: `ABIERTA`, `EN_CORTE`, `CERRADA`,
 
 - No es estado del crédito
 - **Actor:** supervisor / administrador
+- **Operación:** `REESTRUCTURACION_CREDITO` (D-44)
 
 ---
 
@@ -343,6 +375,7 @@ Estados análogos a jornada de cobrador: `ABIERTA`, `EN_CORTE`, `CERRADA`,
 | `IMPRESO` | Impresión exitosa |
 
 - Fallo de impresión **no** cancela el pago
+- `PRIMER_PAGO_RETENIDO` también genera ticket (D-45)
 
 ---
 
@@ -354,6 +387,38 @@ Estados análogos a jornada de cobrador: `ABIERTA`, `EN_CORTE`, `CERRADA`,
 | `REVERTIDA` | Compensada por operación de reverso |
 | `AJUSTADA` | Compensada por ajuste administrativo |
 
-Tipos relevantes incluyen: pago, reverso, desembolso, fondo, transferencia,
-gasto, aportación, depósito manual, retiro, recuperación castigo,
-`AJUSTE_ADMINISTRATIVO_DESEMBOLSO` (D-30, solo administrador).
+Tipos: catálogo cerrado de 20 códigos (D-33). Ver
+`catalogo-operaciones-financieras.md`.
+
+El reverso de `PRIMER_PAGO_RETENIDO` es independiente del desembolso padre
+(D-45).
+
+---
+
+## 24. ContraparteExterna
+
+| Estado | Significado |
+|---|---|
+| `ACTIVA` | Puede usarse en nuevas operaciones |
+| `INACTIVA` | Fuera de uso; historial conservado |
+
+- **Sin** borrado físico (D-34, D-48)
+
+---
+
+## 25. ExcepcionPermanenciaEfectivo
+
+| Estado | Significado | Terminal |
+|---|---|---|
+| `AUTORIZADA` | Autorizada; aún no aplicada en corte | No |
+| `APLICADA` | Usada en el corte de la cuarta noche | No |
+| `CUMPLIDA` | Permanencia liquidada dentro de fecha límite | Sí |
+| `VENCIDA` | Fecha límite sin resolución; genera incidencia | Sí |
+| `REVOCADA` | Anulada antes de aplicar | Sí |
+
+- **Inicial:** `AUTORIZADA`
+- **Transiciones:**
+  - AUTORIZADA → APLICADA | REVOCADA | VENCIDA
+  - APLICADA → CUMPLIDA | VENCIDA
+- **Restricciones:** `REVOCADA` solo desde `AUTORIZADA`; no quinta noche
+  (D-38, D-46, UC-27)

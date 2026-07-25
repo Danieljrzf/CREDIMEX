@@ -110,3 +110,53 @@ Cada registro debe contener:
   - Guía rápida;
   - Manual de incidencias.
 - **Commit relacionado:** `67e41fe` — docs: documentar el modelo conceptual y las decisiones de datos
+
+### Versión 1.5
+
+- **Fecha:** 24 de julio de 2026
+- **Fase:** Fase 3A — Cierre del modelo conceptual financiero
+- **Archivos creados:**
+  - `docs/04-database/catalogo-operaciones-financieras.md`
+  - `docs/07-decisions/CREDIMEX_Decisiones_Modelo_Datos_v1.5.md`
+  - `docs/02-use-cases/UC-27-excepcion-permanencia-efectivo.md`
+  - `docs/03-processes/puesta-en-marcha-carga-inicial.md`
+- **Archivos modificados:**
+  - `docs/04-database/catalogo-entidades.md`
+  - `docs/04-database/catalogo-estados.md`
+  - `docs/04-database/relaciones-conceptuales.md`
+  - `docs/04-database/modelo-movimientos-financieros.md`
+  - `docs/04-database/riesgos-y-decisiones-abiertas.md`
+  - `docs/00-index.md`
+  - `docs/00-historial-documentacion.md`
+  - `docs/01-requirements/collector-workday.md`
+  - `docs/01-requirements/cash-differences.md`
+  - `docs/02-use-cases/UC-24-fondo-a-cobrador.md`
+  - `docs/02-use-cases/UC-25-caja-central.md`
+- **Decisiones agregadas:** D-33 a D-53
+- **Decisiones reemplazadas:** ninguna (complementan D-01 a D-32; precisan
+  D-17 respecto a movimientos brutos del desembolso)
+- **Contenido:**
+  - Catálogo financiero cerrado (20 códigos activos).
+  - Movimientos brutos de desembolso (principal y comisión identificables).
+  - Primer pago retenido como operación hija con `operacion_padre_id`.
+  - Reconciliación diaria de atraso.
+  - Excepción de cuarta noche (UC-27).
+  - Jornada de caja central (apertura perezosa).
+  - Carga inicial de saldos y proceso de puesta en marcha (D-51).
+  - Reestructuración con carga de interés nuevo.
+  - Contrapartes externas.
+  - Entregas con diferencia (`CONFIRMADA_CON_DIFERENCIA`).
+  - Motivo del fondo al cobrador (elimina `OrigenComercialFondo` del flujo
+    ordinario).
+  - Autorización administrativa exclusiva de ajustes de efectivo (D-52).
+  - Política de modificación de días festivos (D-53).
+- **Pendientes:** deuda de redacción del maestro v1.2.
+- **Impacto en manuales:** estas decisiones se utilizarán posteriormente para:
+  - Manual del cobrador;
+  - Manual del supervisor;
+  - Manual del administrador;
+  - Manual de operación de caja;
+  - Manual técnico;
+  - Guía rápida;
+  - Manual de incidencias.
+- **Commit relacionado:** pendiente de registrar
