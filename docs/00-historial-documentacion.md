@@ -196,4 +196,4 @@ Cada registro debe contener:
   - Manual de operación de caja;
   - Manual de incidencias;
   - Manual del administrador.
-- **Commit relacionado:** pendiente de registrar
+- **Commit relacionado:** `98712fa` — docs: definir el modelo lógico y el ERD v1.6
