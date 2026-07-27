@@ -6,6 +6,9 @@ Ningún agente ni colaborador debe usar rutas de carpetas distintas a las declar
 ## Estado del proyecto
 
 El proyecto se encuentra en **fase de diseño técnico (Fase 3A)**.
+La **Fase 3A.3** (modelo físico preliminar PostgreSQL) está documentada
+y aprobada a nivel documental; todavía **no** se crean migraciones ni
+código.
 
 El código todavía **no debe iniciarse**: no se crean proyectos Android ni Laravel,
 no se generan migraciones y no se instalan dependencias hasta que el modelo de datos,
@@ -66,6 +69,26 @@ docs/
 | Índices conceptuales | `docs/04-database/indices-conceptuales.md` | Aprobado |
 | ERD conceptual | `docs/04-database/erd-conceptual.md` | Aprobado |
 | Riesgos del modelo lógico | `docs/04-database/riesgos-modelo-logico.md` | Aprobado |
+| Decisiones de modelo físico v1.7 | `docs/07-decisions/CREDIMEX_Decisiones_Modelo_Fisico_v1.7.md` | Aprobado |
+| Modelo físico preliminar PostgreSQL | `docs/04-database/modelo-fisico-postgresql.md` | Aprobado |
+| Identificadores y exposición | `docs/04-database/identificadores-y-exposicion.md` | Aprobado |
+| Restricciones físicas PostgreSQL | `docs/04-database/restricciones-fisicas-postgresql.md` | Aprobado |
+| Borrado, inactivación y retención | `docs/04-database/borrado-inactivacion-y-retencion.md` | Aprobado |
+| Sensibilidad, cifrado y logs | `docs/04-database/sensibilidad-cifrado-y-logs.md` | Aprobado |
+| Convenciones físicas y orden de migraciones | `docs/04-database/convenciones-fisicas-y-orden-migraciones.md` | Aprobado |
+| Riesgos del modelo físico | `docs/04-database/riesgos-modelo-fisico.md` | Aprobado |
+
+La versión documental **v1.7** (Fase 3A.3) incluye:
+
+- decisiones D-69 a D-91;
+- modelo físico preliminar PostgreSQL;
+- 67 tablas lógicas conservadas;
+- 17 tablas con `id_publico`;
+- tipos físicos;
+- concurrencia;
+- cifrado;
+- retención;
+- orden **futuro** de migraciones (las migraciones **no** están creadas).
 
 ## Documentos en construcción
 
@@ -85,3 +108,4 @@ docs/
 - Las decisiones D-21 a D-32 están en `CREDIMEX_Decisiones_Modelo_Datos_v1.4.md`.
 - Las decisiones D-33 a D-53 están en `CREDIMEX_Decisiones_Modelo_Datos_v1.5.md`.
 - Las decisiones D-54 a D-68 están en `CREDIMEX_Decisiones_Modelo_Logico_v1.6.md`.
+- Las decisiones D-69 a D-91 están en `CREDIMEX_Decisiones_Modelo_Fisico_v1.7.md`.

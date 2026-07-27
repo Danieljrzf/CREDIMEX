@@ -197,3 +197,42 @@ Cada registro debe contener:
   - Manual de incidencias;
   - Manual del administrador.
 - **Commit relacionado:** `98712fa` — docs: definir el modelo lógico y el ERD v1.6
+
+### Versión 1.7
+
+- **Fecha:** 26 de julio de 2026
+- **Fase:** Fase 3A.3 — Modelo físico preliminar PostgreSQL
+- **Archivos creados:**
+  - `docs/07-decisions/CREDIMEX_Decisiones_Modelo_Fisico_v1.7.md`
+  - `docs/04-database/modelo-fisico-postgresql.md`
+  - `docs/04-database/identificadores-y-exposicion.md`
+  - `docs/04-database/restricciones-fisicas-postgresql.md`
+  - `docs/04-database/borrado-inactivacion-y-retencion.md`
+  - `docs/04-database/sensibilidad-cifrado-y-logs.md`
+  - `docs/04-database/convenciones-fisicas-y-orden-migraciones.md`
+  - `docs/04-database/riesgos-modelo-fisico.md`
+- **Archivos modificados:**
+  - `docs/00-index.md`
+  - `docs/00-historial-documentacion.md`
+- **Decisiones agregadas:** D-69 a D-91
+- **Decisiones reemplazadas:** ninguna (complementan D-01 a D-68; no alteran el inventario de 67 tablas)
+- **Contenido:**
+  - Estrategia BIGINT interno + UUID público selectivo (`id_publico`).
+  - Exactamente 17 tablas con `id_publico`; UUIDv7 generado en backend.
+  - Importes `BIGINT` en centavos; tasas `NUMERIC(9,6)` como factor.
+  - `TIMESTAMPTZ`, `DATE` y zona IANA; snapshot en jornadas.
+  - Restricciones directas, índices únicos parciales, transaccionales y reconciliadas.
+  - Carga inicial lote + cuenta como APP + TX + REC (sin UNIQUE directo).
+  - Concurrencia (`READ COMMITTED`) y orden de bloqueo.
+  - Sensibilidad, cifrado, HMAC (`BYTEA`), versiones de clave y exclusión de logs.
+  - Clasificación de borrado e inactivación (sin `deleted_at` generalizado).
+  - 15 grupos **futuros** de migración (sin migraciones creadas).
+  - Riesgos físicos pendientes de implementación.
+- **Pendientes:** deuda de redacción del maestro v1.2; creación de migraciones cuando se autorice; diseño de KMS.
+- **Impacto en manuales:** estas decisiones se utilizarán posteriormente para:
+  - administración de usuarios y accesos;
+  - protección de información personal y bancaria;
+  - funcionamiento de folios e identificadores públicos;
+  - operación concurrente de pagos, entregas y cierres;
+  - conservación, inactivación y trazabilidad de registros.
+- **Commit relacionado:** pendiente de registrar
