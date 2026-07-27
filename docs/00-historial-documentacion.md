@@ -272,4 +272,4 @@ Cada registro debe contener:
   - Manual técnico (instalación y configuración);
   - Manual del administrador (roles y permisos de base de datos);
   - Guía de contribución (entorno de desarrollo).
-- **Commit relacionado:** pendiente de registrar
+- **Commit relacionado:** `0ea0c82` — docs: documentar la preparación técnica de la fase 3B
