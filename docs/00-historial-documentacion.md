@@ -305,4 +305,4 @@ Cada registro debe contener:
   - Manual técnico (instalación del backend API);
   - Guía de contribución (entorno local y secretos);
   - Manual del administrador (cuando exista autenticación).
-- **Commit relacionado:** pendiente de registrar
+- **Commit relacionado:** `2b538e1` — docs: documentar el cierre de la fase 3B.1
