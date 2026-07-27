@@ -96,6 +96,15 @@ Las decisiones resueltas complementarias están en:
 
 - No actualizar manuales con funciones que todavía no estén implementadas y probadas.
 
+## Ubicación del código
+
+La aplicación backend (Laravel) vive exclusivamente en `backend/`.
+
+La carpeta `api/` no es la aplicación backend; no debe recibir código
+de servidor, controladores, modelos ni migraciones.
+
+La carpeta `android/` se reserva para la aplicación móvil futura.
+
 ## Forma de trabajo
 
 Antes de modificar código:

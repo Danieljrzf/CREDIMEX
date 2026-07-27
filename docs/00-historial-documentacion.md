@@ -236,3 +236,40 @@ Cada registro debe contener:
   - operación concurrente de pagos, entregas y cierres;
   - conservación, inactivación y trazabilidad de registros.
 - **Commit relacionado:** `63bdd28` — docs: definir el modelo físico preliminar PostgreSQL v1.7
+
+### Versión 1.8
+
+- **Fecha:** 27 de julio de 2026
+- **Fase:** Fase 3B.0 — Preparación técnica del backend y PostgreSQL
+- **Archivos creados:**
+  - `docs/07-decisions/CREDIMEX_Decisiones_Infraestructura_v1.8.md`
+  - `docs/06-architecture/preparacion-tecnica-backend-postgresql.md`
+  - `docs/06-architecture/checklist-inicializacion-segura-3b1.md`
+  - `docs/06-architecture/estrategia-pruebas-postgresql.md`
+- **Archivos modificados:**
+  - `AGENTS.md`
+  - `docs/00-index.md`
+  - `docs/00-historial-documentacion.md`
+- **Decisiones agregadas:** D-92 a D-102
+- **Decisiones reemplazadas:** ninguna (complementan D-01 a D-91; no alteran el inventario de 67 tablas)
+- **Contenido:**
+  - Plataforma objetivo: Laravel ^13.0, PHP 8.5.x, Composer 2.x, PostgreSQL 18.x.
+  - Entorno local validado: PHP 8.5.1, Composer 2.10.2, PostgreSQL 18.4, Git 2.50.
+  - `backend/` como ubicación canónica del código Laravel.
+  - Inicialización segura con `--remove-vcs --no-scripts`.
+  - Eliminación de 3 migraciones predeterminadas y 9 tablas no autorizadas.
+  - Tabla técnica `migrations` aceptada fuera de las 67 del dominio.
+  - Drivers iniciales sin tablas técnicas (file/array/sync/null/local/log/stack).
+  - Separación de roles PostgreSQL: `credimex_owner` (migraciones) y `credimex_app` (operación).
+  - Bases `credimex_dev` y `credimex_test` con UTF8, ICU `es-MX` y UTC.
+  - PK con `BIGINT GENERATED ALWAYS AS IDENTITY` (sin BIGSERIAL).
+  - Autenticación pospuesta a prueba técnica de adaptación de Sanctum.
+  - Pruebas exclusivas contra PostgreSQL; SQLite prohibido.
+  - Manejo de entornos y secretos (`.env` local, `.env.example` versionado).
+  - Scripts Composer: eliminar `setup` y `dev`; conservar `test` y hooks.
+- **Pendientes:** ejecución de 3B.1 (inicialización de Laravel); creación de bases y roles PostgreSQL en 3B.2; prueba de Sanctum en 3B.3.
+- **Impacto en manuales:** estas decisiones se utilizarán posteriormente para:
+  - Manual técnico (instalación y configuración);
+  - Manual del administrador (roles y permisos de base de datos);
+  - Guía de contribución (entorno de desarrollo).
+- **Commit relacionado:** pendiente de registrar

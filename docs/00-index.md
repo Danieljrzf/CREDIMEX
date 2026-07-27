@@ -5,14 +5,15 @@ Ningún agente ni colaborador debe usar rutas de carpetas distintas a las declar
 
 ## Estado del proyecto
 
-El proyecto se encuentra en **fase de diseño técnico (Fase 3A)**.
-La **Fase 3A.3** (modelo físico preliminar PostgreSQL) está documentada
-y aprobada a nivel documental; todavía **no** se crean migraciones ni
-código.
+El proyecto se encuentra en **Fase 3B — Implementación del backend**.
 
-El código todavía **no debe iniciarse**: no se crean proyectos Android ni Laravel,
-no se generan migraciones y no se instalan dependencias hasta que el modelo de datos,
-las transacciones, la idempotencia y la auditoría estén aprobados.
+La **Fase 3B.0** (preparación técnica) está aprobada. Las decisiones
+D-92 a D-102 fijan la plataforma, la inicialización segura y las
+restricciones de infraestructura.
+
+La **Fase 3B.1** (inicialización de Laravel) es el siguiente paso
+autorizado. Todavía **no** se ha creado `backend/` ni se han ejecutado
+migraciones.
 
 ## Documento maestro vigente
 
@@ -77,6 +78,26 @@ docs/
 | Sensibilidad, cifrado y logs | `docs/04-database/sensibilidad-cifrado-y-logs.md` | Aprobado |
 | Convenciones físicas y orden de migraciones | `docs/04-database/convenciones-fisicas-y-orden-migraciones.md` | Aprobado |
 | Riesgos del modelo físico | `docs/04-database/riesgos-modelo-fisico.md` | Aprobado |
+| Decisiones de infraestructura v1.8 | `docs/07-decisions/CREDIMEX_Decisiones_Infraestructura_v1.8.md` | Aprobado |
+| Preparación técnica backend y PostgreSQL | `docs/06-architecture/preparacion-tecnica-backend-postgresql.md` | Aprobado |
+| Checklist de inicialización segura 3B.1 | `docs/06-architecture/checklist-inicializacion-segura-3b1.md` | Aprobado |
+| Estrategia de pruebas PostgreSQL | `docs/06-architecture/estrategia-pruebas-postgresql.md` | Aprobado |
+
+La versión documental **v1.8** (Fase 3B.0) incluye:
+
+- decisiones D-92 a D-102;
+- preparación técnica del backend y PostgreSQL;
+- checklist de inicialización segura;
+- estrategia de pruebas PostgreSQL;
+- entorno validado (PHP 8.5.1, Composer 2.10.2, PostgreSQL 18.4, Git 2.50);
+- `backend/` como ubicación canónica;
+- control de migraciones predeterminadas;
+- tabla técnica `migrations` aceptada (fuera de las 67 del dominio);
+- drivers iniciales sin tablas técnicas;
+- separación de roles PostgreSQL (`credimex_owner` / `credimex_app`);
+- identity vía Schema Builder (sin BIGSERIAL);
+- autenticación pospuesta a prueba de Sanctum;
+- pruebas exclusivas contra PostgreSQL (sin SQLite).
 
 La versión documental **v1.7** (Fase 3A.3) incluye:
 
@@ -103,9 +124,10 @@ La versión documental **v1.7** (Fase 3A.3) incluye:
 - `docs/00-index.md` es la única fuente de rutas. No se deben inventar carpetas ni renombrar las existentes.
 - Todo documento nuevo se registra en las tablas de este índice antes de considerarse oficial.
 - El documento maestro no se modifica dentro de esta normalización documental.
-- El código no debe iniciarse hasta recibir autorización expresa tras cerrar la Fase 3A.
+- El código backend vive en `backend/`; `api/` no debe recibir código (D-93).
 - Las decisiones D-01 a D-20 están en `CREDIMEX_Decisiones_Resueltas_v1.3.md`.
 - Las decisiones D-21 a D-32 están en `CREDIMEX_Decisiones_Modelo_Datos_v1.4.md`.
 - Las decisiones D-33 a D-53 están en `CREDIMEX_Decisiones_Modelo_Datos_v1.5.md`.
 - Las decisiones D-54 a D-68 están en `CREDIMEX_Decisiones_Modelo_Logico_v1.6.md`.
 - Las decisiones D-69 a D-91 están en `CREDIMEX_Decisiones_Modelo_Fisico_v1.7.md`.
+- Las decisiones D-92 a D-102 están en `CREDIMEX_Decisiones_Infraestructura_v1.8.md`.
