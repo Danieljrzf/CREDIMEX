@@ -337,4 +337,4 @@ Cada registro debe contener:
   - Guía de contribución (roles, secretos, migraciones con `pgsql_owner`);
   - Manual del administrador (cuando existan operaciones de dominio).
 - **Commit técnico relacionado:** `a845485` — feat: configurar conexiones PostgreSQL por entorno
-- **Commit relacionado:** pendiente de registrar
+- **Commit relacionado:** `f54b7c2` — docs: documentar el cierre de la fase 3B.2
