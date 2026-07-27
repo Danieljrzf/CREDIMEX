@@ -273,3 +273,36 @@ Cada registro debe contener:
   - Manual del administrador (roles y permisos de base de datos);
   - Guía de contribución (entorno de desarrollo).
 - **Commit relacionado:** `0ea0c82` — docs: documentar la preparación técnica de la fase 3B
+
+### Versión 1.9
+
+- **Fecha:** 27 de julio de 2026
+- **Fase:** Fase 3B.1 — Inicialización segura del backend Laravel
+- **Archivos creados:**
+  - `docs/07-decisions/CREDIMEX_Decisiones_Inicializacion_Backend_v1.9.md`
+  - `docs/06-architecture/cierre-fase-3b1-inicializacion-backend.md`
+  - Estructura técnica dentro de `backend/` (esqueleto Laravel 13 depurado para API)
+- **Archivos modificados:**
+  - `docs/00-index.md`
+  - `docs/00-historial-documentacion.md`
+  - `docs/06-architecture/checklist-inicializacion-segura-3b1.md`
+- **Decisiones agregadas:** D-103 a D-107
+- **Decisiones reemplazadas:** ninguna (complementan D-01 a D-102; no alteran el inventario de 67 tablas)
+- **Contenido:**
+  - Configuración segura aplicada en `backend/`.
+  - Depuración del esqueleto para backend exclusivamente API.
+  - Versión efectiva: `laravel/framework` 13.22.0; PHP 8.5.1; Composer 2.10.2.
+  - Drivers D-96, PostgreSQL como conexión predeterminada, UTC y locale `es`.
+  - `routes/api.php` canónico y vacío; `/up` solo como salud técnica.
+  - Eliminación de `User`, `UserFactory`, frontend Blade/Vite/NPM.
+  - Política de `APP_KEY` local y archivos de entorno.
+  - Checklist 3B.1 completado; pendientes trasladados a 3B.2+.
+- **Commits técnicos:**
+  - `798339e` — feat: inicializar backend Laravel 13 con configuración segura
+  - `73298fd` — chore: depurar el esqueleto Laravel para backend API
+- **Pendientes:** Fase 3B.2 — bases, roles y conexión PostgreSQL; tabla técnica `migrations`; pruebas contra `credimex_test`; migraciones de dominio y prueba de Sanctum en fases posteriores.
+- **Impacto en manuales:** estas decisiones se utilizarán posteriormente para:
+  - Manual técnico (instalación del backend API);
+  - Guía de contribución (entorno local y secretos);
+  - Manual del administrador (cuando exista autenticación).
+- **Commit relacionado:** pendiente de registrar

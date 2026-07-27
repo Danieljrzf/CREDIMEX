@@ -1,12 +1,12 @@
 # CREDIMEX — Checklist de inicialización segura (3B.1)
 
-**Estado:** Aprobado (Fase 3B.0)
-**Decisiones:** D-94, D-95, D-96, D-101, D-102.
-**Alcance:** Secuencia operativa. Sin SQL ni migraciones.
+**Estado:** Completada (Fase 3B.1)
+**Decisiones:** D-94, D-95, D-96, D-101, D-102, D-103 a D-107.
+**Alcance:** Secuencia operativa. Sin SQL ni migraciones de dominio.
 
 ---
 
-## Secuencia
+## Secuencia original
 
 | # | Paso | Decisión | Verificación |
 |---|---|---|---|
@@ -32,6 +32,46 @@
 
 ---
 
+## Estado de cierre
+
+### Completados
+
+| Ítem | Estado |
+|---|---|
+| Rama de trabajo creada | Completado |
+| Laravel creado con `--remove-vcs --no-scripts` | Completado |
+| Ausencia de `.git` anidado | Completado |
+| Eliminación de migraciones predeterminadas | Completado |
+| Eliminación de `database.sqlite` | Completado |
+| Configuración de PostgreSQL como conexión predeterminada | Completado |
+| Drivers D-96 | Completado |
+| Archivos `.env` protegidos | Completado |
+| Retirada de SQLite en `phpunit.xml` | Completado |
+| Eliminación de scripts `setup`, `dev` y `post-create-project-cmd` | Completado |
+| `APP_KEY` local generada | Completado |
+| `composer validate` | Completado |
+| `composer audit` | Completado |
+| `composer dump-autoload` | Completado |
+| Laravel `--version` | Completado |
+| Laravel `about` | Completado |
+| Depuración del frontend | Completado |
+| `routes/api.php` creado | Completado |
+| `migrations/` vacío | Completado |
+| Working tree limpio | Completado |
+
+### Pendientes
+
+| Ítem | Fase |
+|---|---|
+| Creación de bases y roles PostgreSQL | 3B.2 |
+| Conexión real a PostgreSQL | 3B.2 |
+| Creación de la tabla técnica `migrations` | 3B.2 |
+| Pruebas contra `credimex_test` | 3B.2 |
+| Migraciones del dominio | 3B.3+ |
+| Prueba de Sanctum | 3B.3 |
+
+---
+
 ## Qué no se hace en 3B.1
 
 - No ejecutar `migrate`.
@@ -46,4 +86,6 @@
 ## Referencias
 
 - `docs/07-decisions/CREDIMEX_Decisiones_Infraestructura_v1.8.md`
+- `docs/07-decisions/CREDIMEX_Decisiones_Inicializacion_Backend_v1.9.md`
 - `docs/06-architecture/preparacion-tecnica-backend-postgresql.md`
+- `docs/06-architecture/cierre-fase-3b1-inicializacion-backend.md`

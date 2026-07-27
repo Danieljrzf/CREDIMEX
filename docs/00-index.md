@@ -7,13 +7,14 @@ Ningún agente ni colaborador debe usar rutas de carpetas distintas a las declar
 
 El proyecto se encuentra en **Fase 3B — Implementación del backend**.
 
-La **Fase 3B.0** (preparación técnica) está aprobada. Las decisiones
-D-92 a D-102 fijan la plataforma, la inicialización segura y las
-restricciones de infraestructura.
+La **Fase 3B.1** (inicialización segura del backend Laravel) está
+**completada**. El backend Laravel está inicializado en `backend/`.
 
-La **Fase 3B.1** (inicialización de Laravel) es el siguiente paso
-autorizado. Todavía **no** se ha creado `backend/` ni se han ejecutado
-migraciones.
+Todavía **no** se han ejecutado migraciones ni se ha conectado a
+PostgreSQL.
+
+El siguiente paso autorizado es la **Fase 3B.2** — bases, roles y
+conexión PostgreSQL.
 
 ## Documento maestro vigente
 
@@ -82,6 +83,20 @@ docs/
 | Preparación técnica backend y PostgreSQL | `docs/06-architecture/preparacion-tecnica-backend-postgresql.md` | Aprobado |
 | Checklist de inicialización segura 3B.1 | `docs/06-architecture/checklist-inicializacion-segura-3b1.md` | Aprobado |
 | Estrategia de pruebas PostgreSQL | `docs/06-architecture/estrategia-pruebas-postgresql.md` | Aprobado |
+| Decisiones de inicialización del backend v1.9 | `docs/07-decisions/CREDIMEX_Decisiones_Inicializacion_Backend_v1.9.md` | Aprobado |
+| Cierre Fase 3B.1 — Inicialización del backend | `docs/06-architecture/cierre-fase-3b1-inicializacion-backend.md` | Aprobado |
+
+La versión documental **v1.9** (Fase 3B.1) incluye:
+
+- decisiones D-103 a D-107;
+- cierre técnico de la inicialización segura del backend;
+- versión efectiva `laravel/framework` 13.22.0;
+- backend exclusivamente API;
+- `routes/api.php` canónico y vacío;
+- eliminación de `User` y del frontend de demostración;
+- política de `APP_KEY` y archivos locales;
+- checklist 3B.1 marcado como completado;
+- siguiente fase autorizada: 3B.2.
 
 La versión documental **v1.8** (Fase 3B.0) incluye:
 
@@ -131,3 +146,4 @@ La versión documental **v1.7** (Fase 3A.3) incluye:
 - Las decisiones D-54 a D-68 están en `CREDIMEX_Decisiones_Modelo_Logico_v1.6.md`.
 - Las decisiones D-69 a D-91 están en `CREDIMEX_Decisiones_Modelo_Fisico_v1.7.md`.
 - Las decisiones D-92 a D-102 están en `CREDIMEX_Decisiones_Infraestructura_v1.8.md`.
+- Las decisiones D-103 a D-107 están en `CREDIMEX_Decisiones_Inicializacion_Backend_v1.9.md`.
