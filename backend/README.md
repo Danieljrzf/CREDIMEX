@@ -18,18 +18,38 @@ La carpeta `api/` del repositorio no debe recibir código del backend.
 
 El punto futuro de rutas HTTP es `routes/api.php`.
 
+## Conexiones de base de datos
+
+| Conexión | Uso |
+|---|---|
+| `pgsql` | Conexión ordinaria de la aplicación |
+| `pgsql_owner` | Reservada para migraciones y DDL |
+
+Desarrollo y testing usan roles diferentes. El `search_path` es
+exclusivamente `credimex` (sin `public`).
+
+Nunca ejecutar migraciones con la conexión `pgsql`.
+
+Comando de migraciones:
+
+```text
+php artisan migrate --database=pgsql_owner
+```
+
+En testing: añadir `--env=testing`.
+
+La tabla técnica `migrations` ya existe en `credimex` (dev y test).
+Todavía no se han creado migraciones del dominio.
+
 ## Estado actual
 
-Fase 3B.1 — Inicialización del backend.
+Fase 3B.2 — Configuración PostgreSQL (técnicamente completada).
 
 Todavía **no** se debe:
 
-- ejecutar `php artisan migrate`;
+- ejecutar migraciones del dominio;
 - usar SQLite;
 - instalar Sanctum;
 - implementar autenticación;
 - instalar Node ni ejecutar NPM;
-- crear bases, roles, migraciones de dominio ni endpoints.
-
-Los comandos de instalación de bases de datos y el resto de la
-configuración operativa se documentarán en fases posteriores.
+- crear endpoints de negocio.

@@ -306,3 +306,35 @@ Cada registro debe contener:
   - Guía de contribución (entorno local y secretos);
   - Manual del administrador (cuando exista autenticación).
 - **Commit relacionado:** `2b538e1` — docs: documentar el cierre de la fase 3B.1
+
+### Versión 2.0
+
+- **Fecha:** 27 de julio de 2026
+- **Fase:** Fase 3B.2 — Bases, roles, esquema y conexiones PostgreSQL
+- **Archivos creados:**
+  - `docs/07-decisions/CREDIMEX_Decisiones_Configuracion_PostgreSQL_v2.0.md`
+  - `docs/06-architecture/cierre-fase-3b2-configuracion-postgresql.md`
+- **Archivos modificados:**
+  - `docs/00-index.md`
+  - `docs/00-historial-documentacion.md`
+  - `AGENTS.md`
+  - `backend/README.md` (ajuste mínimo de estado)
+  - `backend/config/database.php` (conexiones; configuración técnica de la misma fase)
+  - `backend/.env.example` / `backend/.env.testing.example` (configuración técnica de la misma fase)
+- **Decisiones agregadas:** D-108 a D-116
+- **Decisiones reemplazadas:** ninguna (complementan D-01 a D-107; no alteran el inventario de 67 tablas)
+- **Contenido:**
+  - PostgreSQL 18.4 local: `credimex_dev` / `credimex_test` (propiedad `postgres`).
+  - Esquema `credimex` por base; owners `credimex_owner` / `credimex_test_owner`.
+  - Cuatro roles; aislamiento CONNECT; `search_path=credimex`; UTC; UTF8; ICU `es-MX`; SCRAM.
+  - Laravel: `pgsql` + `pgsql_owner`; conexiones validadas vía Tinker.
+  - Tabla técnica `migrations` instalada y sin privilegios para roles app.
+  - Incidencia controlada: esquema vacío accidental en `postgres` eliminado sin CASCADE.
+  - Sin migraciones ni tablas del dominio; fail-closed PHPUnit aún no implementado.
+- **Pendientes:** Fase 3B.3 — migraciones de seguridad y catálogos; prueba de Sanctum; guarda fail-closed; privilegios explícitos por tabla.
+- **Impacto en manuales:** estas decisiones se utilizarán posteriormente para:
+  - Manual técnico (instalación PostgreSQL y conexiones);
+  - Guía de contribución (roles, secretos, migraciones con `pgsql_owner`);
+  - Manual del administrador (cuando existan operaciones de dominio).
+- **Commit técnico relacionado:** `a845485` — feat: configurar conexiones PostgreSQL por entorno
+- **Commit relacionado:** pendiente de registrar

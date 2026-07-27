@@ -7,14 +7,17 @@ Ningún agente ni colaborador debe usar rutas de carpetas distintas a las declar
 
 El proyecto se encuentra en **Fase 3B — Implementación del backend**.
 
-La **Fase 3B.1** (inicialización segura del backend Laravel) está
-**completada**. El backend Laravel está inicializado en `backend/`.
+La **Fase 3B.2** (bases, roles, esquema y conexiones PostgreSQL) está
+**técnicamente completada**. Pendiente únicamente revisión y commit
+documental.
 
-Todavía **no** se han ejecutado migraciones ni se ha conectado a
-PostgreSQL.
+El backend Laravel está conectado a PostgreSQL local con esquema
+`credimex`, cuatro roles por entorno y tabla técnica `migrations`.
 
-El siguiente paso autorizado es la **Fase 3B.2** — bases, roles y
-conexión PostgreSQL.
+Todavía **no** existen migraciones ni tablas del dominio.
+
+El siguiente paso autorizado es la **Fase 3B.3** — migraciones de
+seguridad y catálogos; prueba de Sanctum.
 
 ## Documento maestro vigente
 
@@ -85,6 +88,20 @@ docs/
 | Estrategia de pruebas PostgreSQL | `docs/06-architecture/estrategia-pruebas-postgresql.md` | Aprobado |
 | Decisiones de inicialización del backend v1.9 | `docs/07-decisions/CREDIMEX_Decisiones_Inicializacion_Backend_v1.9.md` | Aprobado |
 | Cierre Fase 3B.1 — Inicialización del backend | `docs/06-architecture/cierre-fase-3b1-inicializacion-backend.md` | Aprobado |
+| Decisiones de configuración PostgreSQL v2.0 | `docs/07-decisions/CREDIMEX_Decisiones_Configuracion_PostgreSQL_v2.0.md` | Aprobado |
+| Cierre Fase 3B.2 — Configuración PostgreSQL | `docs/06-architecture/cierre-fase-3b2-configuracion-postgresql.md` | Aprobado |
+
+La versión documental **v2.0** (Fase 3B.2) incluye:
+
+- decisiones D-108 a D-116;
+- esquema dedicado `credimex` y `search_path` exclusivo;
+- cuatro roles separados por entorno sin acceso cruzado;
+- conexiones `pgsql` y `pgsql_owner`;
+- bases UTF8 / ICU `es-MX` / UTC;
+- tabla técnica `migrations` protegida (fuera de las 67);
+- privilegios explícitos por clasificación de tabla;
+- estrategia fail-closed documentada (aún no implementada en código);
+- siguiente fase autorizada: 3B.3.
 
 La versión documental **v1.9** (Fase 3B.1) incluye:
 
@@ -147,3 +164,4 @@ La versión documental **v1.7** (Fase 3A.3) incluye:
 - Las decisiones D-69 a D-91 están en `CREDIMEX_Decisiones_Modelo_Fisico_v1.7.md`.
 - Las decisiones D-92 a D-102 están en `CREDIMEX_Decisiones_Infraestructura_v1.8.md`.
 - Las decisiones D-103 a D-107 están en `CREDIMEX_Decisiones_Inicializacion_Backend_v1.9.md`.
+- Las decisiones D-108 a D-116 están en `CREDIMEX_Decisiones_Configuracion_PostgreSQL_v2.0.md`.

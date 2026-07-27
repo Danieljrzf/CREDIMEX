@@ -105,6 +105,16 @@ de servidor, controladores, modelos ni migraciones.
 
 La carpeta `android/` se reserva para la aplicación móvil futura.
 
+## PostgreSQL y conexiones Laravel
+
+- Esquema de aplicación: `credimex` (`search_path` exclusivo; sin `public`).
+- Conexión ordinaria: `pgsql` (roles app).
+- Migraciones y DDL: únicamente `pgsql_owner` (roles owner).
+- Nunca ejecutar migraciones con la conexión `pgsql`.
+- Desarrollo y testing usan roles y bases distintos, sin acceso cruzado.
+- Secretos solo en `.env` / `.env.testing` locales; nunca en
+  documentación, ejemplos ni commits.
+
 ## Forma de trabajo
 
 Antes de modificar código:
