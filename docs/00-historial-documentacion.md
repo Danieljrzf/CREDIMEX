@@ -235,4 +235,4 @@ Cada registro debe contener:
   - funcionamiento de folios e identificadores públicos;
   - operación concurrente de pagos, entregas y cierres;
   - conservación, inactivación y trazabilidad de registros.
-- **Commit relacionado:** pendiente de registrar
+- **Commit relacionado:** `63bdd28` — docs: definir el modelo físico preliminar PostgreSQL v1.7
