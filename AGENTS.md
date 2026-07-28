@@ -111,9 +111,19 @@ La carpeta `android/` se reserva para la aplicación móvil futura.
 - Conexión ordinaria: `pgsql` (roles app).
 - Migraciones y DDL: únicamente `pgsql_owner` (roles owner).
 - Nunca ejecutar migraciones con la conexión `pgsql`.
+- Las migraciones futuras del dominio requerirán `pgsql_owner`.
 - Desarrollo y testing usan roles y bases distintos, sin acceso cruzado.
 - Secretos solo en `.env` / `.env.testing` locales; nunca en
   documentación, ejemplos ni commits.
+
+## Pruebas Laravel y PostgreSQL
+
+- Las pruebas Laravel deben usar exclusivamente la base `credimex_test`.
+- Están prohibidos `RefreshDatabase`, `DatabaseMigrations` y
+  `DatabaseTruncation` hasta que exista un mecanismo propio que migre
+  con `pgsql_owner`.
+- No desactivar ni evadir la guarda fail-closed de
+  `Tests\TestCase` / `PostgreSqlTestSafetyGuard`.
 
 ## Forma de trabajo
 

@@ -41,9 +41,25 @@ En testing: añadir `--env=testing`.
 La tabla técnica `migrations` ya existe en `credimex` (dev y test).
 Todavía no se han creado migraciones del dominio.
 
+## Pruebas
+
+Ejecutar la suite:
+
+```text
+php artisan test
+```
+
+La suite valida automáticamente el entorno PostgreSQL de testing
+(`credimex_test`, roles y `search_path`) mediante una guarda
+fail-closed en `Tests\TestCase`.
+
+Están prohibidos `RefreshDatabase`, `DatabaseMigrations` y
+`DatabaseTruncation`. Todavía no existe un trait propio de migraciones.
+
 ## Estado actual
 
-Fase 3B.2 — Configuración PostgreSQL (técnicamente completada).
+Fase 3B.3 en curso. Subfase 3B.3.0A (guarda fail-closed) técnicamente
+completada.
 
 Todavía **no** se debe:
 
@@ -52,4 +68,5 @@ Todavía **no** se debe:
 - instalar Sanctum;
 - implementar autenticación;
 - instalar Node ni ejecutar NPM;
-- crear endpoints de negocio.
+- crear endpoints de negocio;
+- usar los traits estándar de recreación de base.

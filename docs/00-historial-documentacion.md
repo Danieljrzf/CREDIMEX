@@ -338,3 +338,42 @@ Cada registro debe contener:
   - Manual del administrador (cuando existan operaciones de dominio).
 - **Commit técnico relacionado:** `a845485` — feat: configurar conexiones PostgreSQL por entorno
 - **Commit relacionado:** `f54b7c2` — docs: documentar el cierre de la fase 3B.2
+
+### Versión 2.1
+
+- **Fecha:** 28 de julio de 2026
+- **Fase:** Fase 3B.3 en curso — subfase 3B.3.0A (guarda PHPUnit
+  fail-closed para PostgreSQL)
+- **Archivos creados:**
+  - `docs/07-decisions/CREDIMEX_Decisiones_Guarda_Pruebas_PostgreSQL_v2.1.md`
+  - `docs/06-architecture/cierre-subfase-3b3-0a-guarda-postgresql-fail-closed.md`
+- **Archivos modificados:**
+  - `docs/00-index.md`
+  - `docs/00-historial-documentacion.md`
+  - `AGENTS.md`
+  - `backend/README.md` (ajuste breve de pruebas)
+- **Decisiones agregadas:** D-117
+- **Decisiones reemplazadas:** ninguna (complementa D-113 / D-100; no
+  altera D-01 a D-116 ni el inventario de 67 tablas)
+- **Contenido:**
+  - Guarda `PostgreSqlTestSafetyGuard` integrada en
+    `Tests\TestCase::setUpTraits()` antes del padre.
+  - Validación fail-closed de entorno `testing`, conexiones `pgsql` /
+    `pgsql_owner`, base `credimex_test`, usuarios
+    `credimex_test_app` / `credimex_test_owner`, esquema y
+    `search_path` `credimex`.
+  - Rechazo de `RefreshDatabase`, `DatabaseMigrations` y
+    `DatabaseTruncation`.
+  - Errores de inspección sanitizados.
+  - Suite: 19 pruebas / 58 assertions.
+  - Sin grants, sin `DB_APP_ROLE`, sin migraciones ni tablas del
+    dominio.
+- **Pendientes:** subfase 3B.3.0B (configuración y helper seguro de
+  grants); trait propio con `pgsql_owner`; migraciones de seguridad y
+  catálogos; prueba de Sanctum. Candidatas D-118 a D-122 no aprobadas.
+- **Impacto en manuales:** estas decisiones se utilizarán posteriormente
+  para:
+  - Manual técnico (ejecución de pruebas y entorno PostgreSQL);
+  - Guía de contribución (traits prohibidos y guarda fail-closed).
+- **Commit técnico relacionado:** `51527f7` — test: implementar guarda PostgreSQL fail-closed
+- **Commit relacionado:** pendiente de registrar

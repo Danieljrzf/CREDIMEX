@@ -7,17 +7,21 @@ Ningún agente ni colaborador debe usar rutas de carpetas distintas a las declar
 
 El proyecto se encuentra en **Fase 3B — Implementación del backend**.
 
-La **Fase 3B.2** (bases, roles, esquema y conexiones PostgreSQL) está
-**técnicamente completada**. Pendiente únicamente revisión y commit
-documental.
+La **Fase 3B.3** (migraciones de seguridad y catálogos; prueba de
+Sanctum) está **en curso**.
+
+La subfase **3B.3.0A** (guarda PHPUnit fail-closed para PostgreSQL)
+está **técnicamente completada**. Versión documental **v2.1**.
 
 El backend Laravel está conectado a PostgreSQL local con esquema
-`credimex`, cuatro roles por entorno y tabla técnica `migrations`.
+`credimex`, cuatro roles por entorno, tabla técnica `migrations` y
+guarda fail-closed de pruebas.
 
 Todavía **no** existen migraciones ni tablas del dominio.
+Todavía **no** existe helper de grants ni `DB_APP_ROLE`.
 
-El siguiente paso autorizado es la **Fase 3B.3** — migraciones de
-seguridad y catálogos; prueba de Sanctum.
+La siguiente subfase autorizada es **3B.3.0B** — configuración y
+helper seguro de grants.
 
 ## Documento maestro vigente
 
@@ -90,6 +94,21 @@ docs/
 | Cierre Fase 3B.1 — Inicialización del backend | `docs/06-architecture/cierre-fase-3b1-inicializacion-backend.md` | Aprobado |
 | Decisiones de configuración PostgreSQL v2.0 | `docs/07-decisions/CREDIMEX_Decisiones_Configuracion_PostgreSQL_v2.0.md` | Aprobado |
 | Cierre Fase 3B.2 — Configuración PostgreSQL | `docs/06-architecture/cierre-fase-3b2-configuracion-postgresql.md` | Aprobado |
+| Decisiones de guarda de pruebas PostgreSQL v2.1 | `docs/07-decisions/CREDIMEX_Decisiones_Guarda_Pruebas_PostgreSQL_v2.1.md` | Aprobado |
+| Cierre subfase 3B.3.0A — Guarda PostgreSQL fail-closed | `docs/06-architecture/cierre-subfase-3b3-0a-guarda-postgresql-fail-closed.md` | Aprobado |
+
+La versión documental **v2.1** (subfase 3B.3.0A) incluye:
+
+- decisión D-117;
+- guarda PHPUnit fail-closed implementada e integrada en
+  `Tests\TestCase::setUpTraits()`;
+- rechazo de `RefreshDatabase`, `DatabaseMigrations` y
+  `DatabaseTruncation` hasta un mecanismo propio con `pgsql_owner`;
+- validación de entorno, conexiones, usuarios, base, esquema y
+  `search_path`;
+- errores de inspección sanitizados;
+- suite validada: 19 pruebas / 58 assertions;
+- Fase 3B.3 en curso; siguiente subfase: 3B.3.0B (grants).
 
 La versión documental **v2.0** (Fase 3B.2) incluye:
 
@@ -165,3 +184,4 @@ La versión documental **v1.7** (Fase 3A.3) incluye:
 - Las decisiones D-92 a D-102 están en `CREDIMEX_Decisiones_Infraestructura_v1.8.md`.
 - Las decisiones D-103 a D-107 están en `CREDIMEX_Decisiones_Inicializacion_Backend_v1.9.md`.
 - Las decisiones D-108 a D-116 están en `CREDIMEX_Decisiones_Configuracion_PostgreSQL_v2.0.md`.
+- La decisión D-117 está en `CREDIMEX_Decisiones_Guarda_Pruebas_PostgreSQL_v2.1.md`.
