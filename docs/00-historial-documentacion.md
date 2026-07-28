@@ -376,4 +376,4 @@ Cada registro debe contener:
   - Manual técnico (ejecución de pruebas y entorno PostgreSQL);
   - Guía de contribución (traits prohibidos y guarda fail-closed).
 - **Commit técnico relacionado:** `51527f7` — test: implementar guarda PostgreSQL fail-closed
-- **Commit relacionado:** pendiente de registrar
+- **Commit relacionado:** `45efb66` — docs: documentar el cierre de la subfase 3B.3.0A
