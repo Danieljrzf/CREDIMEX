@@ -10,18 +10,21 @@ El proyecto se encuentra en **Fase 3B — Implementación del backend**.
 La **Fase 3B.3** (migraciones de seguridad y catálogos; prueba de
 Sanctum) está **en curso**.
 
-La subfase **3B.3.0A** (guarda PHPUnit fail-closed para PostgreSQL)
-está **técnicamente completada**. Versión documental **v2.1**.
+La subfase **3B.3.0A** (guarda PHPUnit fail-closed) está
+**técnicamente completada** (v2.1).
+
+La subfase **3B.3.0B** (helper seguro de privilegios PostgreSQL) está
+**técnicamente completada**. Versión documental **v2.2**.
 
 El backend Laravel está conectado a PostgreSQL local con esquema
-`credimex`, cuatro roles por entorno, tabla técnica `migrations` y
-guarda fail-closed de pruebas.
+`credimex`, cuatro roles por entorno, tabla técnica `migrations`,
+guarda fail-closed de pruebas y helper de privilegios
+(`PostgreSqlGrantManager`).
 
 Todavía **no** existen migraciones ni tablas del dominio.
-Todavía **no** existe helper de grants ni `DB_APP_ROLE`.
 
-La siguiente subfase autorizada es **3B.3.0B** — configuración y
-helper seguro de grants.
+La siguiente subfase autorizada es **3B.3.1 — migraciones de roles,
+permisos y rol_permisos**.
 
 ## Documento maestro vigente
 
@@ -96,6 +99,19 @@ docs/
 | Cierre Fase 3B.2 — Configuración PostgreSQL | `docs/06-architecture/cierre-fase-3b2-configuracion-postgresql.md` | Aprobado |
 | Decisiones de guarda de pruebas PostgreSQL v2.1 | `docs/07-decisions/CREDIMEX_Decisiones_Guarda_Pruebas_PostgreSQL_v2.1.md` | Aprobado |
 | Cierre subfase 3B.3.0A — Guarda PostgreSQL fail-closed | `docs/06-architecture/cierre-subfase-3b3-0a-guarda-postgresql-fail-closed.md` | Aprobado |
+| Decisiones de helper de privilegios PostgreSQL v2.2 | `docs/07-decisions/CREDIMEX_Decisiones_Helper_Privilegios_PostgreSQL_v2.2.md` | Aprobado |
+| Cierre subfase 3B.3.0B — Helper de privilegios PostgreSQL | `docs/06-architecture/cierre-subfase-3b3-0b-helper-privilegios-postgresql.md` | Aprobado |
+
+La versión documental **v2.2** (subfase 3B.3.0B) incluye:
+
+- decisiones D-118 y D-119;
+- helper `PostgreSqlGrantManager` fail-closed;
+- resolución de `DB_APP_ROLE` vía `config/credimex.php`;
+- privilegios explícitos de tabla/secuencia sin `ALTER DEFAULT PRIVILEGES`;
+- protección de `migrations` y `migrations_id_seq`;
+- suite validada: 66 pruebas / 193 assertions;
+- Fase 3B.3 en curso; siguiente subfase: 3B.3.1 — migraciones de roles,
+  permisos y rol_permisos.
 
 La versión documental **v2.1** (subfase 3B.3.0A) incluye:
 
@@ -185,3 +201,4 @@ La versión documental **v1.7** (Fase 3A.3) incluye:
 - Las decisiones D-103 a D-107 están en `CREDIMEX_Decisiones_Inicializacion_Backend_v1.9.md`.
 - Las decisiones D-108 a D-116 están en `CREDIMEX_Decisiones_Configuracion_PostgreSQL_v2.0.md`.
 - La decisión D-117 está en `CREDIMEX_Decisiones_Guarda_Pruebas_PostgreSQL_v2.1.md`.
+- Las decisiones D-118 y D-119 están en `CREDIMEX_Decisiones_Helper_Privilegios_PostgreSQL_v2.2.md`.

@@ -377,3 +377,42 @@ Cada registro debe contener:
   - Guía de contribución (traits prohibidos y guarda fail-closed).
 - **Commit técnico relacionado:** `51527f7` — test: implementar guarda PostgreSQL fail-closed
 - **Commit relacionado:** `45efb66` — docs: documentar el cierre de la subfase 3B.3.0A
+
+### Versión 2.2
+
+- **Fecha:** 28 de julio de 2026
+- **Fase:** Fase 3B.3 en curso — subfase 3B.3.0B (helper seguro de
+  privilegios PostgreSQL)
+- **Archivos creados:**
+  - `docs/07-decisions/CREDIMEX_Decisiones_Helper_Privilegios_PostgreSQL_v2.2.md`
+  - `docs/06-architecture/cierre-subfase-3b3-0b-helper-privilegios-postgresql.md`
+- **Archivos modificados:**
+  - `docs/00-index.md`
+  - `docs/00-historial-documentacion.md`
+  - `AGENTS.md`
+  - `backend/README.md`
+- **Decisiones agregadas:** D-118 y D-119
+- **Decisiones reemplazadas:** ninguna (complementan D-116 / D-117; no
+  alteran D-01 a D-117 ni el inventario de 67 tablas)
+- **Contenido:**
+  - Helper `PostgreSqlGrantManager` con API grant/revoke de tablas y
+    secuencias.
+  - Resolución de rol app por entorno vía
+    `config('credimex.database.app_role')`.
+  - Validación fail-closed de entorno, conexiones, rol, esquema y
+    `search_path`.
+  - Protección de `migrations` / `migrations_id_seq`; sin
+    `ALTER DEFAULT PRIVILEGES`.
+  - Suite: 66 pruebas / 193 assertions.
+  - Sin migraciones ni tablas del dominio; sin GRANT/REVOKE reales de
+    negocio.
+- **Pendientes:** subfase 3B.3.1 — migraciones de roles, permisos y
+  rol_permisos; subfase 3B.3.2 — usuarios y dispositivos; D-120 a
+  D-122 siguen como candidatas (D-121 divide su implementación en
+  3B.3.1 y 3B.3.2). Sin tag. Sin merge.
+- **Impacto en manuales:** estas decisiones se utilizarán posteriormente
+  para:
+  - Manual técnico (privilegios PostgreSQL y migraciones);
+  - Guía de contribución (uso obligatorio del helper).
+- **Commit técnico relacionado:** `4cd8847` — feat: implementar helper seguro de privilegios PostgreSQL
+- **Commit relacionado:** pendiente de registrar

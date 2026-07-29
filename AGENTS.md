@@ -125,6 +125,21 @@ La carpeta `android/` se reserva para la aplicación móvil futura.
 - No desactivar ni evadir la guarda fail-closed de
   `Tests\TestCase` / `PostgreSqlTestSafetyGuard`.
 
+## Privilegios PostgreSQL en migraciones futuras
+
+- No escribir `GRANT` / `REVOKE` directamente en migraciones.
+- Usar exclusivamente `App\Infrastructure\Database\PostgreSqlGrantManager`.
+- No conceder permisos a `migrations` ni a `migrations_id_seq`.
+- No usar `ALTER DEFAULT PRIVILEGES`.
+- No pasar nombres de rol como argumento desde migraciones.
+- Resolver el rol receptor solo con
+  `config('credimex.database.app_role')` (nunca `env('DB_APP_ROLE')`
+  fuera de `config/credimex.php`).
+- Mantener simetría `GRANT` / `REVOKE` entre `up` y `down`.
+- Usar `pgsql_owner` para operaciones administrativas de privilegios.
+- No usar traits prohibidos de testing
+  (`RefreshDatabase`, `DatabaseMigrations`, `DatabaseTruncation`).
+
 ## Forma de trabajo
 
 Antes de modificar código:
