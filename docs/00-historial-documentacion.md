@@ -415,4 +415,4 @@ Cada registro debe contener:
   - Manual técnico (privilegios PostgreSQL y migraciones);
   - Guía de contribución (uso obligatorio del helper).
 - **Commit técnico relacionado:** `4cd8847` — feat: implementar helper seguro de privilegios PostgreSQL
-- **Commit relacionado:** pendiente de registrar
+- **Commit relacionado:** `55b0960` — docs: documentar el cierre de la subfase 3B.3.0B

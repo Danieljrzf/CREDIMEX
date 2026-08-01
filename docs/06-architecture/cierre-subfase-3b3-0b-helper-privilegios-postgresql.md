@@ -1,6 +1,6 @@
 # CREDIMEX — Cierre de la subfase 3B.3.0B
 
-**Estado:** Completada técnicamente (pendiente commit documental)
+**Estado:** Completada técnica y documentalmente
 **Fecha:** 28 de julio de 2026
 **Versión documental:** v2.2
 **Decisiones:** D-118 y D-119.
