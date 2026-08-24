@@ -474,4 +474,4 @@ Cada registro debe contener:
   - Guía de contribución (harness obligatorio y serialización);
   - Manual de incidencias (fallos por etapa).
 - **Commit técnico relacionado:** `4dcdd59` — test: implementar harness owner-aware de migraciones PostgreSQL
-- **Commit documental:** pendiente de registrar
+- **Commit relacionado:** `175b79d` — docs: documentar el cierre de la subfase 3B.3.1A
