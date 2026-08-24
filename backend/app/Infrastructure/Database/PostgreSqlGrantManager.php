@@ -3,6 +3,7 @@
 namespace App\Infrastructure\Database;
 
 use Illuminate\Contracts\Foundation\Application;
+use Illuminate\Database\DatabaseManager;
 use Throwable;
 
 final class PostgreSqlGrantManager
@@ -74,6 +75,80 @@ final class PostgreSqlGrantManager
             schema: (string) $config->get('credimex.database.schema', self::EXPECTED_SCHEMA),
             environmentCatalog: $catalog,
         );
+    }
+
+    public static function fromOwnerMigration(Application $app): self
+    {
+        try {
+            $db = $app->make('db');
+
+            if (! $db instanceof DatabaseManager) {
+                throw new PostgreSqlGrantException(
+                    'El gestor de conexiones no es compatible con el contexto de migración owner.'
+                );
+            }
+
+            $runtimeDefaultConnection = $db->getDefaultConnection();
+
+            if ($runtimeDefaultConnection !== self::OWNER_CONNECTION) {
+                throw new PostgreSqlGrantException(
+                    'El contexto de migración debe tener pgsql_owner como conexión default temporal.'
+                );
+            }
+
+            if ($db->connection(self::OWNER_CONNECTION)->transactionLevel() < 1) {
+                throw new PostgreSqlGrantException(
+                    'El contexto de migración owner debe ejecutar privilegios dentro de una transacción activa.'
+                );
+            }
+        } catch (PostgreSqlGrantException $exception) {
+            throw $exception;
+        } catch (Throwable) {
+            throw new PostgreSqlGrantException(
+                'No fue posible validar el contexto temporal de la migración owner.'
+            );
+        }
+
+        $manager = null;
+        $failure = null;
+        $cleanupFailed = false;
+
+        try {
+            $db->setDefaultConnection(self::APP_CONNECTION);
+            $manager = self::fromApplication($app);
+        } catch (Throwable) {
+            $failure = new PostgreSqlGrantException(
+                'No fue posible preparar el helper de privilegios para la migración owner.'
+            );
+        } finally {
+            try {
+                $db->setDefaultConnection($runtimeDefaultConnection);
+
+                if ($db->getDefaultConnection() !== $runtimeDefaultConnection) {
+                    $cleanupFailed = true;
+                }
+            } catch (Throwable) {
+                $cleanupFailed = true;
+            }
+        }
+
+        if ($cleanupFailed) {
+            throw new PostgreSqlGrantException(
+                'No fue posible restaurar la conexión default temporal de la migración owner.'
+            );
+        }
+
+        if ($failure !== null) {
+            throw $failure;
+        }
+
+        if (! $manager instanceof self) {
+            throw new PostgreSqlGrantException(
+                'No fue posible construir el helper de privilegios para la migración owner.'
+            );
+        }
+
+        return $manager;
     }
 
     public function assertSafeContext(): PostgreSqlGrantContext

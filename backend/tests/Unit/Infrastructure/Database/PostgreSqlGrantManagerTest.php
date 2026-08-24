@@ -10,7 +10,13 @@ use App\Infrastructure\Database\PostgreSqlGrantManager;
 use App\Infrastructure\Database\PostgreSqlGrantSqlExecutor;
 use App\Infrastructure\Database\PostgreSqlIdentifierQuoter;
 use App\Infrastructure\Database\PostgreSqlRoleSnapshot;
+use Illuminate\Config\Repository;
+use Illuminate\Contracts\Foundation\Application;
+use Illuminate\Database\Connection;
+use Illuminate\Database\DatabaseManager;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use RuntimeException;
 use Throwable;
 
 final class PostgreSqlGrantManagerTest extends TestCase
@@ -115,6 +121,57 @@ final class PostgreSqlGrantManagerTest extends TestCase
         $this->expectExceptionMessage('conexión default debe ser exactamente "pgsql"');
 
         $manager->assertSafeContext();
+    }
+
+    public function test_owner_migration_factory_requires_owner_as_runtime_default(): void
+    {
+        [$app, $database] = $this->makeOwnerMigrationApplication(runtimeDefault: 'pgsql');
+
+        try {
+            PostgreSqlGrantManager::fromOwnerMigration($app);
+            $this->fail('El contexto ordinario no debe aceptarse como migración owner.');
+        } catch (PostgreSqlGrantException $exception) {
+            $this->assertStringContainsString('pgsql_owner como conexión default temporal', $exception->getMessage());
+            $this->assertSame('pgsql', $database->getDefaultConnection());
+        }
+    }
+
+    public function test_owner_migration_factory_requires_active_owner_transaction(): void
+    {
+        [$app, $database] = $this->makeOwnerMigrationApplication(transactionLevel: 0);
+
+        try {
+            PostgreSqlGrantManager::fromOwnerMigration($app);
+            $this->fail('El contexto owner sin transacción no debe aceptarse.');
+        } catch (PostgreSqlGrantException $exception) {
+            $this->assertStringContainsString('transacción activa', $exception->getMessage());
+            $this->assertSame(PostgreSqlGrantManager::OWNER_CONNECTION, $database->getDefaultConnection());
+        }
+    }
+
+    public function test_owner_migration_factory_restores_runtime_default_after_construction(): void
+    {
+        [$app, $database] = $this->makeOwnerMigrationApplication();
+
+        $manager = PostgreSqlGrantManager::fromOwnerMigration($app);
+
+        $this->assertInstanceOf(PostgreSqlGrantManager::class, $manager);
+        $this->assertSame(PostgreSqlGrantManager::OWNER_CONNECTION, $database->getDefaultConnection());
+    }
+
+    public function test_owner_migration_factory_restores_runtime_default_after_failure(): void
+    {
+        [$app, $database] = $this->makeOwnerMigrationApplication(failConfigResolution: true);
+
+        try {
+            PostgreSqlGrantManager::fromOwnerMigration($app);
+            $this->fail('La preparación del helper debía fallar.');
+        } catch (PostgreSqlGrantException $exception) {
+            $this->assertStringContainsString('preparar el helper', $exception->getMessage());
+            $this->assertStringNotContainsString('detalle sensible', $exception->getMessage());
+            $this->assertSame(PostgreSqlGrantManager::OWNER_CONNECTION, $database->getDefaultConnection());
+            $this->assertNull($exception->getPrevious());
+        }
     }
 
     public function test_rejects_pgsql_driver_other_than_pgsql(): void
@@ -771,6 +828,74 @@ final class PostgreSqlGrantManagerTest extends TestCase
     private function makeValidManager(): PostgreSqlGrantManager
     {
         return $this->makeManager();
+    }
+
+    /**
+     * @return array{Application&MockObject, DatabaseManager&MockObject}
+     */
+    private function makeOwnerMigrationApplication(
+        string $runtimeDefault = PostgreSqlGrantManager::OWNER_CONNECTION,
+        int $transactionLevel = 1,
+        bool $failConfigResolution = false,
+    ): array {
+        $config = new Repository([
+            'app' => ['env' => 'testing'],
+            'database' => [
+                'default' => $runtimeDefault,
+                'connections' => [
+                    'pgsql' => ['driver' => 'pgsql'],
+                    'pgsql_owner' => ['driver' => 'pgsql'],
+                ],
+            ],
+            'credimex' => [
+                'database' => [
+                    'schema' => 'credimex',
+                    'app_role' => 'credimex_test_app',
+                    'environments' => [
+                        'testing' => [
+                            'database' => 'credimex_test',
+                            'owner_user' => 'credimex_test_owner',
+                            'app_user' => 'credimex_test_app',
+                        ],
+                    ],
+                ],
+            ],
+        ]);
+
+        $ownerConnection = $this->createMock(Connection::class);
+        $ownerConnection->method('transactionLevel')->willReturn($transactionLevel);
+
+        $database = $this->createMock(DatabaseManager::class);
+        $database->method('getDefaultConnection')->willReturnCallback(
+            static fn (): string => (string) $config->get('database.default')
+        );
+        $database->method('setDefaultConnection')->willReturnCallback(
+            static function (string $name) use ($config): void {
+                $config->set('database.default', $name);
+            }
+        );
+        $database->method('connection')->willReturn($ownerConnection);
+
+        $application = $this->createMock(Application::class);
+        $application->method('make')->willReturnCallback(
+            static function (string $abstract) use (
+                $config,
+                $database,
+                $failConfigResolution,
+            ): mixed {
+                if ($abstract === 'db') {
+                    return $database;
+                }
+
+                if ($abstract === 'config' && ! $failConfigResolution) {
+                    return $config;
+                }
+
+                throw new RuntimeException('detalle sensible de resolución');
+            }
+        );
+
+        return [$application, $database];
     }
 
     /**
