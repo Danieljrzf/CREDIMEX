@@ -416,3 +416,62 @@ Cada registro debe contener:
   - Guía de contribución (uso obligatorio del helper).
 - **Commit técnico relacionado:** `4cd8847` — feat: implementar helper seguro de privilegios PostgreSQL
 - **Commit relacionado:** `55b0960` — docs: documentar el cierre de la subfase 3B.3.0B
+
+### Versión 2.3
+
+- **Fecha:** 23 de agosto de 2026
+- **Fase:** Fase 3B.3 en curso — subfase 3B.3.1A (harness owner-aware
+  fail-closed para migraciones PostgreSQL)
+- **Archivos creados:**
+  - `docs/07-decisions/CREDIMEX_Decisiones_Harness_Migraciones_PostgreSQL_v2.3.md`
+  - `docs/06-architecture/cierre-subfase-3b3-1a-harness-owner-aware-postgresql.md`
+- **Archivos modificados:**
+  - `docs/00-index.md`
+  - `docs/00-historial-documentacion.md`
+  - `AGENTS.md`
+  - `backend/README.md`
+- **Decisiones agregadas:** D-120
+- **Decisiones reemplazadas:** ninguna (D-120 complementa D-117,
+  D-118 y D-119; no altera D-01 a D-119 ni el inventario de 67 tablas)
+- **Contenido:**
+  - Harness owner-aware con `Illuminate\Database\Migrations\Migrator`
+    programático y archivo individual.
+  - Validación fail-closed de contexto antes de path y precondiciones.
+  - Transacción exterior `pgsql_owner`, sin commit y con rollback
+    obligatorio en `finally`.
+  - Ownership transaccional: nivel inicial/final `0`; sin rollback de
+    transacciones ajenas.
+  - Restauración exacta de la default connection a `pgsql`.
+  - Factory
+    `PostgreSqlGrantManager::fromOwnerMigration(app())` para
+    compatibilidad con el cambio temporal de default del Migrator.
+  - Allowlist de paths y fixture smoke exclusiva de testing.
+  - Tests owner-aware **SERIAL ONLY**.
+  - Suite completa: **91 pruebas / 319 assertions**.
+  - Smoke ejecutado dos veces consecutivas sin residuos.
+  - Sin tabla fixture ni fila residual en `migrations`.
+  - App sin privilegios sobre `migrations` /
+    `migrations_id_seq`.
+  - Sin migraciones ni tablas del dominio.
+- **Estado de decisiones:**
+  - D-118: aprobada, sin cambios sustanciales;
+  - D-119: aprobada, sin cambios;
+  - D-120: **aprobada**;
+  - D-121: candidata;
+  - D-122: candidata.
+- **Estado de 3B.3.1:**
+  - 3B.3.1.0 — auditoría de migraciones default confirmada; no requirió
+    cambios ni commit propio;
+  - 3B.3.1A — completada técnica y documentalmente;
+  - siguiente: **3B.3.1B — migraciones de roles, permisos y
+    rol_permisos**;
+  - posterior: **3B.3.1C — datos iniciales RBAC**.
+- **Pendientes:** D-121 y D-122; migraciones 3B.3.1B; datos iniciales
+  RBAC; prueba de Sanctum en fase posterior. No existe tag v2.3 y no
+  hubo merge.
+- **Impacto en manuales:**
+  - Manual técnico (pruebas owner-aware y rollback);
+  - Guía de contribución (harness obligatorio y serialización);
+  - Manual de incidencias (fallos por etapa).
+- **Commit técnico relacionado:** `4dcdd59` — test: implementar harness owner-aware de migraciones PostgreSQL
+- **Commit documental:** pendiente de registrar

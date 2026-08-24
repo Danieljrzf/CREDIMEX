@@ -120,10 +120,20 @@ La carpeta `android/` se reserva para la aplicación móvil futura.
 
 - Las pruebas Laravel deben usar exclusivamente la base `credimex_test`.
 - Están prohibidos `RefreshDatabase`, `DatabaseMigrations` y
-  `DatabaseTruncation` hasta que exista un mecanismo propio que migre
-  con `pgsql_owner`.
+  `DatabaseTruncation`.
 - No desactivar ni evadir la guarda fail-closed de
   `Tests\TestCase` / `PostgreSqlTestSafetyGuard`.
+- Las pruebas de migraciones deben usar exclusivamente
+  `Tests\Support\Migrations\OwnerAwareMigrationTestHarness` (D-120).
+- `DatabaseTransactions` no sustituye al harness D-120.
+- Están prohibidos `migrate:fresh`, `db:wipe`, `DROP SCHEMA` y el
+  truncado general en pruebas.
+- El harness D-120 solo puede ejecutarse en entorno `testing`, base
+  `credimex_test`, mediante `pgsql_owner`.
+- El `transactionLevel` inicial de `pgsql_owner` debe ser exactamente
+  `0`; el harness no revierte transacciones que no creó.
+- Los tests owner-aware de migraciones son **SERIAL ONLY**; no deben
+  ejecutarse en paralelo.
 
 ## Privilegios PostgreSQL en migraciones futuras
 
@@ -137,6 +147,13 @@ La carpeta `android/` se reserva para la aplicación móvil futura.
   fuera de `config/credimex.php`).
 - Mantener simetría `GRANT` / `REVOKE` entre `up` y `down`.
 - Usar `pgsql_owner` para operaciones administrativas de privilegios.
+- Las migraciones ejecutadas por owner deben obtener el manager con
+  `PostgreSqlGrantManager::fromOwnerMigration(app())`.
+- El código de aplicación ordinario conserva
+  `PostgreSqlGrantManager::fromApplication(app())`.
+- Las migraciones no deben manipular manualmente la default connection
+  ni implementar `try/finally` propios para alternar `pgsql` /
+  `pgsql_owner`.
 - No usar traits prohibidos de testing
   (`RefreshDatabase`, `DatabaseMigrations`, `DatabaseTruncation`).
 

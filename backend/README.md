@@ -62,14 +62,25 @@ Los `.env` reales locales deben incluir `DB_APP_ROLE` y no se versionan.
 `App\Infrastructure\Database\PostgreSqlGrantManager` es el único camino
 aprobado para `GRANT` / `REVOKE` futuros.
 
-Uso conceptual (solo desde migraciones revisadas):
+Contexto ordinario de aplicación (default `pgsql`):
 
 ```php
 $grants = PostgreSqlGrantManager::fromApplication(app());
+```
+
+Contexto de migración ejecutada por owner:
+
+```php
+$grants = PostgreSqlGrantManager::fromOwnerMigration(app());
 $grants->grantTable('roles', ['SELECT', 'INSERT', 'UPDATE', 'DELETE']);
 $grants->grantSequence('roles_id_seq', ['USAGE']);
 // en down: revokeTable / revokeSequence simétricos
 ```
+
+Las migraciones no deben manipular manualmente la default connection ni
+implementar `try/finally` propios para alternar `pgsql` y
+`pgsql_owner`. La compatibilidad con el cambio temporal realizado por
+Laravel Migrator está centralizada en `fromOwnerMigration()`.
 
 Privilegios permitidos:
 
@@ -114,10 +125,39 @@ La suite valida automáticamente el entorno PostgreSQL de testing
 mediante la guarda fail-closed en `Tests\TestCase`.
 
 Están prohibidos `RefreshDatabase`, `DatabaseMigrations` y
-`DatabaseTruncation`. Todavía no existe un trait propio de migraciones.
+`DatabaseTruncation`.
 
-Resultados confirmados de la subfase 3B.3.0B: **66 pruebas**,
-**193 assertions**.
+## Pruebas owner-aware de migraciones
+
+`Tests\Support\Migrations\OwnerAwareMigrationTestHarness` es el
+mecanismo aprobado por D-120 para probar migraciones PostgreSQL.
+
+Características:
+
+- exclusivamente entorno `testing` y base `credimex_test`;
+- `Migrator` real programático;
+- un archivo `.php` individual por escenario;
+- conexión `pgsql_owner`;
+- transacción exterior owner;
+- rollback exterior obligatorio incluso en éxito;
+- sin commit exterior;
+- fixture smoke transaccional;
+- tests **SERIAL ONLY**.
+
+El harness no utiliza `DatabaseTransactions`, `migrate:fresh`,
+`db:wipe`, `DROP SCHEMA` ni Artisan `migrate` / `rollback` desde
+PHPUnit.
+
+Fixture:
+
+```text
+tests/Fixtures/migrations/0000_00_00_000000_create_zz_test_owner_migration_harness_table.php
+```
+
+La fixture no pertenece al inventario de 67 tablas y no deja residuos.
+
+Resultados confirmados al cierre de 3B.3.1A: **91 pruebas**,
+**319 assertions**.
 
 ## Estado actual
 
@@ -125,8 +165,11 @@ Fase 3B.3 en curso.
 
 - 3B.3.0A (guarda fail-closed): técnicamente completada.
 - 3B.3.0B (helper de privilegios): técnicamente completada.
-- Siguiente subfase: **3B.3.1 — migraciones de roles, permisos y
+- 3B.3.1.0 (auditoría de migraciones default): confirmada, sin cambios.
+- 3B.3.1A (harness owner-aware): completada técnica y documentalmente.
+- Siguiente subfase: **3B.3.1B — migraciones de roles, permisos y
   rol_permisos**.
+- Posterior: **3B.3.1C — datos iniciales RBAC**.
 - Posterior: **3B.3.2** — usuarios y dispositivos.
 
 Todavía **no** se debe:

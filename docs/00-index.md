@@ -16,15 +16,20 @@ La subfase **3B.3.0A** (guarda PHPUnit fail-closed) está
 La subfase **3B.3.0B** (helper seguro de privilegios PostgreSQL) está
 **técnicamente completada**. Versión documental **v2.2**.
 
+La subfase **3B.3.1A** (harness owner-aware fail-closed para pruebas de
+migraciones PostgreSQL) está **completada técnica y documentalmente**.
+Versión documental vigente para D-120: **v2.3**.
+
 El backend Laravel está conectado a PostgreSQL local con esquema
 `credimex`, cuatro roles por entorno, tabla técnica `migrations`,
 guarda fail-closed de pruebas y helper de privilegios
-(`PostgreSqlGrantManager`).
+(`PostgreSqlGrantManager`), además del harness D-120.
 
 Todavía **no** existen migraciones ni tablas del dominio.
 
-La siguiente subfase autorizada es **3B.3.1 — migraciones de roles,
-permisos y rol_permisos**.
+La siguiente subfase autorizada es **3B.3.1B — migraciones de roles,
+permisos y rol_permisos**. La posterior **3B.3.1C** cubrirá datos
+iniciales RBAC.
 
 ## Documento maestro vigente
 
@@ -101,6 +106,22 @@ docs/
 | Cierre subfase 3B.3.0A — Guarda PostgreSQL fail-closed | `docs/06-architecture/cierre-subfase-3b3-0a-guarda-postgresql-fail-closed.md` | Aprobado |
 | Decisiones de helper de privilegios PostgreSQL v2.2 | `docs/07-decisions/CREDIMEX_Decisiones_Helper_Privilegios_PostgreSQL_v2.2.md` | Aprobado |
 | Cierre subfase 3B.3.0B — Helper de privilegios PostgreSQL | `docs/06-architecture/cierre-subfase-3b3-0b-helper-privilegios-postgresql.md` | Aprobado |
+| Decisiones del harness de migraciones PostgreSQL v2.3 | `docs/07-decisions/CREDIMEX_Decisiones_Harness_Migraciones_PostgreSQL_v2.3.md` | Aprobado |
+| Cierre subfase 3B.3.1A — Harness owner-aware PostgreSQL | `docs/06-architecture/cierre-subfase-3b3-1a-harness-owner-aware-postgresql.md` | Aprobado |
+
+La versión documental **v2.3** (subfase 3B.3.1A) incluye:
+
+- decisión D-120 aprobada;
+- harness owner-aware con `Migrator` real y archivo único;
+- transacción exterior `pgsql_owner` con rollback obligatorio y sin
+  commit exterior;
+- orden fail-closed con D-117 antes de path y precondiciones;
+- factory `PostgreSqlGrantManager::fromOwnerMigration(app())`;
+- allowlist de paths y pruebas serial only;
+- suite validada: 91 pruebas / 319 assertions;
+- smoke ejecutado dos veces sin residuos;
+- Fase 3B.3 en curso; siguiente subfase: 3B.3.1B — migraciones de
+  roles, permisos y rol_permisos.
 
 La versión documental **v2.2** (subfase 3B.3.0B) incluye:
 
@@ -202,3 +223,4 @@ La versión documental **v1.7** (Fase 3A.3) incluye:
 - Las decisiones D-108 a D-116 están en `CREDIMEX_Decisiones_Configuracion_PostgreSQL_v2.0.md`.
 - La decisión D-117 está en `CREDIMEX_Decisiones_Guarda_Pruebas_PostgreSQL_v2.1.md`.
 - Las decisiones D-118 y D-119 están en `CREDIMEX_Decisiones_Helper_Privilegios_PostgreSQL_v2.2.md`.
+- La decisión D-120 está en `CREDIMEX_Decisiones_Harness_Migraciones_PostgreSQL_v2.3.md`.
