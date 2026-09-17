@@ -72,6 +72,8 @@ histórica sanitizada cuando corresponda. No constituye borrado ordinario.
 | 12 | `dias_festivos` |
 
 Mecanismos: `estado`, `activo` o versionado de vigencia (parámetros).
+Para `roles` y `permisos`, v2.4 fija específicamente
+`activo BOOLEAN NOT NULL DEFAULT true`.
 
 ---
 
@@ -121,7 +123,7 @@ admiten purga técnica bajo retención aprobada (D-91).
 
 | # | Tabla | Nota |
 |---|---|---|
-| 1 | `rol_permisos` | Matriz mutable; CASCADE solo evaluable aquí (D-76) |
+| 1 | `rol_permisos` | Matriz mutable; filas eliminables de forma controlada; FK `NO ACTION` (v2.4) |
 
 No implica CASCADE sobre hechos financieros.
 

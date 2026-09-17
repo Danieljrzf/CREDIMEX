@@ -20,6 +20,12 @@ La subfase **3B.3.1A** (harness owner-aware fail-closed para pruebas de
 migraciones PostgreSQL) está **completada técnica y documentalmente**.
 Versión documental vigente para D-120: **v2.3**.
 
+La subfase **3B.3.1A.2** (extensión controlada de D-120 para escenarios
+ordenados multiarchivo) está **completada técnica y documentalmente**.
+Versión documental vigente: **v2.4**. D-121 queda aprobada con alcance
+refinado a la base RBAC. El commit técnico es `9621ae1`; el commit
+documental v2.4 está pendiente de registrar. D-122 continúa pendiente.
+
 El backend Laravel está conectado a PostgreSQL local con esquema
 `credimex`, cuatro roles por entorno, tabla técnica `migrations`,
 guarda fail-closed de pruebas y helper de privilegios
@@ -108,6 +114,25 @@ docs/
 | Cierre subfase 3B.3.0B — Helper de privilegios PostgreSQL | `docs/06-architecture/cierre-subfase-3b3-0b-helper-privilegios-postgresql.md` | Aprobado |
 | Decisiones del harness de migraciones PostgreSQL v2.3 | `docs/07-decisions/CREDIMEX_Decisiones_Harness_Migraciones_PostgreSQL_v2.3.md` | Aprobado |
 | Cierre subfase 3B.3.1A — Harness owner-aware PostgreSQL | `docs/06-architecture/cierre-subfase-3b3-1a-harness-owner-aware-postgresql.md` | Aprobado |
+| Extensión del harness y base RBAC v2.4 | `docs/07-decisions/CREDIMEX_Decisiones_Extension_Harness_y_RBAC_v2.4.md` | Aprobado |
+| Cierre subfase 3B.3.1A.2 — Extensión multiarchivo y RBAC | `docs/06-architecture/cierre-subfase-3b3-1a2-extension-multifile-rbac.md` | Aprobado |
+
+La versión documental **v2.4** (subfase 3B.3.1A.2) incluye:
+
+- `runFiles()` ordenado con máximo de ocho archivos y lifecycle único;
+- rollback lógico inverso acotado y rollback exterior obligatorio;
+- snapshots de `migrations` sin alterar registros ajenos;
+- fixtures dependientes con dos FK y ejecución serial;
+- D-121 aprobada y refinada a DDL/datos iniciales RBAC;
+- timestamps RBAC sin default y FK `NO ACTION`;
+- `migrationBatches()` protegido por la frontera sanitizada de
+  precondiciones;
+- rollback multi-file auditado como seguro;
+- suite validada: 106 pruebas / 603 assertions;
+- integración owner-aware ejecutada dos veces: 2 pruebas /
+  75 assertions por corrida;
+- commit técnico `9621ae1`; commit documental pendiente;
+- siguiente subfase: 3B.3.1B.
 
 La versión documental **v2.3** (subfase 3B.3.1A) incluye:
 
@@ -224,3 +249,4 @@ La versión documental **v1.7** (Fase 3A.3) incluye:
 - La decisión D-117 está en `CREDIMEX_Decisiones_Guarda_Pruebas_PostgreSQL_v2.1.md`.
 - Las decisiones D-118 y D-119 están en `CREDIMEX_Decisiones_Helper_Privilegios_PostgreSQL_v2.2.md`.
 - La decisión D-120 está en `CREDIMEX_Decisiones_Harness_Migraciones_PostgreSQL_v2.3.md`.
+- La extensión de D-120 y la decisión D-121 refinada están en `CREDIMEX_Decisiones_Extension_Harness_y_RBAC_v2.4.md`.

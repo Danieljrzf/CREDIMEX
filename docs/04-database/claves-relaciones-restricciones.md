@@ -199,6 +199,7 @@ generado, inmutable).
 | `credito_id` | `castigos_credito` | BD | — |
 | `credito_origen_id` / `credito_destino_id` | `renovaciones` | BD | — |
 | `codigo` | `cajas_centrales`, `roles`, `permisos`, `motivos_entrega_fondo` | BD | — |
+| (`rol_id`, `permiso_id`) | `rol_permisos` | BD | D-27, D-121 |
 | `referencia_lote` | `lotes_carga_inicial` | BD | D-56 |
 | `fecha` | `dias_festivos` | BD | — |
 | (`asignacion_temporal_id`, `ruta_id`) | `asignaciones_temporales_rutas` | BD | D-67 |

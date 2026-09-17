@@ -35,7 +35,7 @@ Convención de mutabilidad:
 ### Rol
 
 - **Objetivo:** Perfil de permisos (cobrador, supervisor, administrador).
-- **Datos conceptuales:** código, nombre.
+- **Datos conceptuales:** código, nombre, activo.
 - **Relaciones:** 1:N usuarios; N:M permisos vía `RolPermiso`.
 - **Mutabilidad:** catálogo mutable.
 - **Reglas:** D-27.
@@ -43,7 +43,7 @@ Convención de mutabilidad:
 ### Permiso
 
 - **Objetivo:** Capacidad atómica por módulo/operación.
-- **Datos conceptuales:** código, módulo, descripción.
+- **Datos conceptuales:** código, módulo, descripción, activo.
 - **Relaciones:** N:M roles vía `RolPermiso`.
 - **Mutabilidad:** catálogo.
 - **Reglas:** matriz del maestro + D-16 (alcance de auditoría).

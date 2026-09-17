@@ -15,8 +15,8 @@
 | Clasificación | sensible / financiera / auditoría / — |
 
 Columnas técnicas comunes omitidas en tablas repetitivas salvo donde aportan
-regla: `id` (identificador, generado, inmutable), `creado_en` / `actualizado_en`
-cuando apliquen.
+regla: `id` (identificador, generado, inmutable), `created_at` / `updated_at`
+cuando apliquen, conforme a D-84.
 
 ---
 
@@ -39,6 +39,9 @@ cuando apliquen.
 | Identificador | `id` | PK | identificador | sí | generado | inmutable | — | — | — |
 | Código | `codigo` | cobrador / supervisor / administrador | código de catálogo | sí | capturado | inmutable | — | único | — |
 | Nombre | `nombre` | Etiqueta | texto corto | sí | capturado | mutable | — | — | — |
+| Activo | `activo` | Disponible para asignación | booleano | sí | capturado | mutable | true | inactivación sin borrado | — |
+| Creado | `created_at` | Alta de fila | fecha y hora | sí | generado | inmutable | sin default | D-84 | auditoría |
+| Actualizado | `updated_at` | Último cambio | fecha y hora | sí | generado | mutable | sin default | D-84; actualización explícita | auditoría |
 
 ## 3. `permisos`
 
@@ -48,6 +51,9 @@ cuando apliquen.
 | Código | `codigo` | Capacidad atómica | código de catálogo | sí | capturado | inmutable | — | único | — |
 | Módulo | `modulo` | Agrupación | texto corto | sí | capturado | mutable | — | — | — |
 | Descripción | `descripcion` | Texto | texto largo | no | capturado | mutable | — | — | — |
+| Activo | `activo` | Disponible para asignación | booleano | sí | capturado | mutable | true | inactivación sin borrado | — |
+| Creado | `created_at` | Alta de fila | fecha y hora | sí | generado | inmutable | sin default | D-84 | auditoría |
+| Actualizado | `updated_at` | Último cambio | fecha y hora | sí | generado | mutable | sin default | D-84; actualización explícita | auditoría |
 
 ## 4. `rol_permisos`
 
@@ -56,6 +62,10 @@ cuando apliquen.
 | Identificador | `id` | PK | identificador | sí | generado | inmutable | — | — | — |
 | Rol | `rol_id` | FK rol | identificador | sí | capturado | inmutable | — | N:M | — |
 | Permiso | `permiso_id` | FK permiso | identificador | sí | capturado | inmutable | — | UK (rol, permiso) | — |
+| Creado | `created_at` | Alta de asignación | fecha y hora | sí | generado | inmutable | sin default | D-84 | auditoría |
+
+`rol_permisos` no utiliza `activo` ni `updated_at`; la matriz se modifica
+creando o eliminando asignaciones de forma controlada.
 
 ## 5. `dispositivos`
 

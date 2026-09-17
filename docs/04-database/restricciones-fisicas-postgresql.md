@@ -40,9 +40,12 @@
 | Códigos/estados técnicos cerrados | CHECK o FK a catálogo |
 | (`sistema_origen`, `id_externo_origen`) únicos si ambos presentes | UNIQUE parcial o equivalente documentado (D-87) |
 
-FK: sin CASCADE en hechos financieros. CASCADE solo evaluable en
-`rol_permisos`. `SET NULL` solo opcionales no financieras. `RESTRICT`
-solo donde se documente rechazo inmediato (D-76, D-91).
+FK: sin CASCADE en hechos financieros. En RBAC V1, las FK de
+`rol_permisos` utilizan `ON UPDATE NO ACTION` y
+`ON DELETE NO ACTION`, no diferibles; la posibilidad de CASCADE de D-76
+no se adopta. `SET NULL` solo aplica a relaciones opcionales no
+financieras. `RESTRICT` solo donde se documente rechazo inmediato
+(D-76, D-91).
 
 ---
 

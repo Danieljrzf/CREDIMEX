@@ -56,6 +56,11 @@ Entregable asociado:
   dependencias y pruebas controladas. Las migraciones deben obtener
   el manager mediante `PostgreSqlGrantManager::fromApplication(app())`
   y no construirlo manualmente.
+
+> **Actualización v2.3 / D-120:** dentro de migraciones ejecutadas por
+> `pgsql_owner`, la factory vigente es
+> `PostgreSqlGrantManager::fromOwnerMigration(app())`. La indicación
+> anterior se conserva como registro histórico del contexto v2.2.
 - Tablas solo aceptan: `SELECT`, `INSERT`, `UPDATE`, `DELETE`.
 - Secuencias solo aceptan: `USAGE`.
 - Quedan prohibidos `ALL` y cualquier otro privilegio (incluidos
@@ -178,6 +183,12 @@ reales ni DDL/DML de dominio.
   D-121 **no** está aprobada todavía.
 - **D-122 (candidata):** spike de Laravel Sanctum frente a
   `sesiones_token`.
+
+**Actualización v2.4:** este bloque conserva el estado histórico de
+v2.2. Posteriormente, D-120 fue aprobada en v2.3 y D-121 fue refinada y
+aprobada en v2.4 exclusivamente para el DDL y los datos iniciales RBAC.
+Usuarios, dispositivos, `sesiones_token`, Sanctum y autenticación
+quedaron fuera de D-121. D-122 continúa pendiente.
 
 ## Siguiente subfase
 

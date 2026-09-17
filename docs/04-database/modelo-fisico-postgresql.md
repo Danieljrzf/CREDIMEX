@@ -85,6 +85,11 @@ instantes se guardan en `TIMESTAMPTZ` (práctica: UTC). El día operativo
 se deriva en backend con la zona de negocio, no interpretando
 `TIMESTAMP` sin zona.
 
+Para la base RBAC, v2.4 fija `TIMESTAMPTZ NOT NULL` sin `DEFAULT` en
+`roles.created_at`, `roles.updated_at`, `permisos.created_at`,
+`permisos.updated_at` y `rol_permisos.created_at`. No existen triggers
+para actualizar `updated_at`.
+
 ---
 
 ## 5. Estados y catálogos (D-74)

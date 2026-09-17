@@ -251,6 +251,10 @@ Rechaza:
 
 No existe API de migración masiva.
 
+> **Extensión v2.4:** D-120 admite posteriormente `runFiles()` para
+> escenarios controlados de uno a ocho archivos explícitos. Continúan
+> prohibidos directorios, globs y ejecución masiva no acotada.
+
 ---
 
 ## Migrator y repositorio técnico
@@ -429,6 +433,12 @@ El diseño previsto para 3B.3.1B conserva:
 - sin usuarios, dispositivos, `sesiones_token` ni Sanctum.
 
 D-121 continúa candidata.
+
+**Actualización v2.4:** las líneas anteriores conservan el estado
+histórico de v2.3. D-121 fue refinada y aprobada posteriormente para
+3B.3.1B (DDL de `roles`, `permisos` y `rol_permisos`) y 3B.3.1C (datos
+iniciales RBAC). Usuarios, dispositivos, `sesiones_token`, Sanctum y
+autenticación quedaron fuera de su alcance. D-122 continúa pendiente.
 
 ---
 

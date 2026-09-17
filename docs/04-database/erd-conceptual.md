@@ -46,6 +46,7 @@ erDiagram
     roles {
         id id PK
         codigo codigo UK
+        activo bool
     }
     usuarios {
         id id PK
@@ -472,11 +473,13 @@ erDiagram
     roles {
         id id PK
         codigo codigo UK
+        activo bool
     }
     permisos {
         id id PK
         codigo codigo UK
         modulo texto
+        activo bool
     }
     rol_permisos {
         id id PK

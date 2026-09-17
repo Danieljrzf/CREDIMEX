@@ -475,3 +475,72 @@ Cada registro debe contener:
   - Manual de incidencias (fallos por etapa).
 - **Commit técnico relacionado:** `4dcdd59` — test: implementar harness owner-aware de migraciones PostgreSQL
 - **Commit relacionado:** `175b79d` — docs: documentar el cierre de la subfase 3B.3.1A
+
+## 2026-09-16 — Versión documental v2.4
+
+- **Fase:** 3B.3.1A.2 — extensión controlada multiarchivo de D-120.
+- **Archivos creados:**
+  - `docs/07-decisions/CREDIMEX_Decisiones_Extension_Harness_y_RBAC_v2.4.md`;
+  - `docs/06-architecture/cierre-subfase-3b3-1a2-extension-multifile-rbac.md`.
+- **Archivos documentales modificados:**
+  - `AGENTS.md`;
+  - `backend/README.md`;
+  - `docs/00-index.md`;
+  - `docs/00-historial-documentacion.md`;
+  - `docs/04-database/borrado-inactivacion-y-retencion.md`;
+  - `docs/04-database/catalogo-entidades.md`;
+  - `docs/04-database/claves-relaciones-restricciones.md`;
+  - `docs/04-database/convenciones-fisicas-y-orden-migraciones.md`;
+  - `docs/04-database/diccionario-identidad-clientes-rutas.md`;
+  - `docs/04-database/erd-conceptual.md`;
+  - `docs/04-database/modelo-fisico-postgresql.md`;
+  - `docs/04-database/restricciones-fisicas-postgresql.md`;
+  - `docs/06-architecture/estrategia-pruebas-postgresql.md`;
+  - `docs/07-decisions/CREDIMEX_Decisiones_Harness_Migraciones_PostgreSQL_v2.3.md`;
+  - `docs/07-decisions/CREDIMEX_Decisiones_Helper_Privilegios_PostgreSQL_v2.2.md`.
+- **Decisiones:**
+  - D-120 ampliada de forma compatible sin duplicar lifecycle;
+  - D-121 aprobada con alcance refinado a base RBAC;
+  - D-122 continúa pendiente.
+- **Contenido:**
+  - `runFiles()` para uno a ocho archivos ordenados;
+  - `runFile()` delega en `runFiles()`;
+  - una llamada Migrator por archivo dentro de una sola transacción
+    exterior;
+  - rollback lógico estrictamente inverso y acotado;
+  - rollback exterior como única barrera en caminos fallidos;
+  - snapshots de `migrations` y preservación de registros ajenos;
+  - rollback multi-file auditado como seguro;
+  - `migrationBatches()` dentro de la frontera sanitizada de
+    `assertPreconditions()`, antes de `BEGIN` y del Migrator;
+  - tres fixtures dependientes exclusivas de testing;
+  - timestamps RBAC `TIMESTAMPTZ NOT NULL` sin default;
+  - FK RBAC `ON UPDATE NO ACTION` / `ON DELETE NO ACTION`;
+  - grants app RBAC solo `SELECT`, sin `USAGE`;
+  - datos iniciales diferidos a 3B.3.1C;
+  - usuarios/dispositivos fuera de D-121 y diferidos a 3B.3.2.
+- **Validación:**
+  - unitarias harness: 34 pruebas / 325 assertions;
+  - unitarias PostgreSqlGrantManager: 47 pruebas / 122 assertions;
+  - integración owner-aware, corrida 1: 2 pruebas / 75 assertions;
+  - integración owner-aware, corrida 2: 2 pruebas / 75 assertions;
+  - suite completa: 106 pruebas / 603 assertions;
+  - Pint aprobado sobre los archivos PHP modificados;
+  - `git diff --check` limpio;
+  - cero tablas o filas fixture persistentes;
+  - baseline histórico de `migrations` intacto;
+  - default connection restaurada y `transactionLevel` owner en `0`;
+  - app sin privilegios sobre `migrations` ni `migrations_id_seq`;
+  - sin migraciones de dominio en `backend/database/migrations`.
+- **Siguiente subfase:** 3B.3.1B — migraciones de roles, permisos y
+  `rol_permisos`.
+- **Impacto en manuales:**
+  - Manual técnico: lifecycle multi-file, rollback seguro y ejecución
+    serial;
+  - Guía de contribución: uso de `runFile()` / `runFiles()` y
+    prohibición de Artisan migrate/rollback desde PHPUnit;
+  - sin cambios en manuales funcionales porque todavía no existen
+    tablas ni funcionalidad RBAC.
+- **Commit técnico relacionado:** `9621ae1` —
+  `test: extender harness owner-aware para migraciones dependientes`.
+- **Commit documental v2.4:** pendiente de registrar.

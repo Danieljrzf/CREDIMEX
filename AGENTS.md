@@ -125,6 +125,10 @@ La carpeta `android/` se reserva para la aplicación móvil futura.
   `Tests\TestCase` / `PostgreSqlTestSafetyGuard`.
 - Las pruebas de migraciones deben usar exclusivamente
   `Tests\Support\Migrations\OwnerAwareMigrationTestHarness` (D-120).
+- `runFile()` se usa para una migración aislada; `runFiles()` para
+  escenarios dependientes ordenados de hasta ocho archivos.
+- `runFiles()` debe recibir archivos individuales explícitos; no acepta
+  directorios ni globs.
 - `DatabaseTransactions` no sustituye al harness D-120.
 - Están prohibidos `migrate:fresh`, `db:wipe`, `DROP SCHEMA` y el
   truncado general en pruebas.

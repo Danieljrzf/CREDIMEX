@@ -45,7 +45,7 @@ Las variables de entorno de pruebas apuntan a `credimex_test` mediante
 | FK | Las claves foráneas existen con política `NO ACTION` | Consulta a `information_schema.referential_constraints` |
 | CHECK | Las restricciones CHECK existen y rechazan valores inválidos | Inserción inválida → excepción |
 | Índices parciales | Los índices únicos parciales existen y funcionan | Inserción duplicada dentro de la condición parcial → excepción |
-| Rollback | `migrate:rollback` completo sin errores | Ejecución y verificación de ausencia de tablas |
+| Rollback | Rollback programático mediante el `Migrator` dentro del harness D-120 | Ejecución controlada y verificación de ausencia de tablas y filas de `migrations` |
 
 ---
 
@@ -53,8 +53,18 @@ Las variables de entorno de pruebas apuntan a `credimex_test` mediante
 
 PHPUnit 12.x (incluido en Laravel 13).
 
-Trait recomendado: `RefreshDatabase` o `DatabaseTransactions` según el
-tipo de prueba.
+Las pruebas de migraciones usan exclusivamente
+`Tests\Support\Migrations\OwnerAwareMigrationTestHarness` (D-120).
+`runFile()` cubre un archivo y `runFiles()` escenarios dependientes de
+hasta ocho archivos. Son **SERIAL ONLY**.
+
+Están prohibidos `RefreshDatabase`, `DatabaseMigrations`,
+`DatabaseTruncation` y `DatabaseTransactions` como sustituto del
+harness.
+
+Desde PHPUnit están prohibidos Artisan `migrate` y `rollback`. Toda
+ejecución y reversión de migraciones de prueba se realiza
+programáticamente mediante el `Migrator` dentro del harness D-120.
 
 ---
 
@@ -68,9 +78,9 @@ tipo de prueba.
 
 ## 7. Qué no se hace en esta fase
 
-- No se crean pruebas.
-- No se ejecuta PHPUnit.
-- No se crean migraciones.
+- No se crean ni ejecutan migraciones de dominio.
+- No se ejecutan Artisan `migrate` ni `rollback` desde PHPUnit.
+- No se utilizan mecanismos destructivos generales de limpieza.
 
 ---
 

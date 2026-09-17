@@ -77,6 +77,10 @@ $grants->grantSequence('roles_id_seq', ['USAGE']);
 // en down: revokeTable / revokeSequence simétricos
 ```
 
+El bloque anterior muestra la API completa disponible, no los permisos
+de una tabla concreta. Para 3B.3.1B, `roles`, `permisos` y
+`rol_permisos` reciben únicamente `SELECT`, sin `USAGE` de secuencias.
+
 Las migraciones no deben manipular manualmente la default connection ni
 implementar `try/finally` propios para alternar `pgsql` y
 `pgsql_owner`. La compatibilidad con el cambio temporal realizado por
@@ -136,9 +140,13 @@ Características:
 
 - exclusivamente entorno `testing` y base `credimex_test`;
 - `Migrator` real programático;
-- un archivo `.php` individual por escenario;
+- `runFile()` para un archivo y `runFiles()` para uno a ocho archivos
+  dependientes en orden explícito;
 - conexión `pgsql_owner`;
 - transacción exterior owner;
+- rollback lógico inverso y acotado por la última fila de `migrations`;
+- baseline de `migrations` capturado dentro de precondiciones
+  sanitizadas, antes de `BEGIN`;
 - rollback exterior obligatorio incluso en éxito;
 - sin commit exterior;
 - fixture smoke transaccional;
@@ -154,10 +162,12 @@ Fixture:
 tests/Fixtures/migrations/0000_00_00_000000_create_zz_test_owner_migration_harness_table.php
 ```
 
-La fixture no pertenece al inventario de 67 tablas y no deja residuos.
+Las fixtures no pertenecen al inventario de 67 tablas y no dejan
+residuos. El rollback multi-file fue auditado como seguro.
 
-Resultados confirmados al cierre de 3B.3.1A: **91 pruebas**,
-**319 assertions**.
+Resultados confirmados al cierre de 3B.3.1A.2: **106 pruebas**,
+**603 assertions**. La integración owner-aware se ejecutó dos veces
+consecutivas: **2 pruebas / 75 assertions** en cada corrida.
 
 ## Estado actual
 
@@ -167,6 +177,8 @@ Fase 3B.3 en curso.
 - 3B.3.0B (helper de privilegios): técnicamente completada.
 - 3B.3.1.0 (auditoría de migraciones default): confirmada, sin cambios.
 - 3B.3.1A (harness owner-aware): completada técnica y documentalmente.
+- 3B.3.1A.2 (extensión multiarchivo): completada técnica y
+  documentalmente.
 - Siguiente subfase: **3B.3.1B — migraciones de roles, permisos y
   rol_permisos**.
 - Posterior: **3B.3.1C — datos iniciales RBAC**.

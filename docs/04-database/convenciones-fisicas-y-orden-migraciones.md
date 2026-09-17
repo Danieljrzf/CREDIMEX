@@ -29,6 +29,10 @@
 No mezclar idiomas de forma arbitraria: se conserva el español del
 modelo lógico aprobado.
 
+Para RBAC, v2.4 fija timestamps `NOT NULL` sin `DEFAULT`: roles y
+permisos llevan `created_at` / `updated_at`; `rol_permisos` solo
+`created_at`.
+
 ---
 
 ## 2. Nombres futuros de migraciones (orientativo)
