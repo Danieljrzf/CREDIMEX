@@ -19,14 +19,15 @@ final class OwnerAwareMigrationTestHarness
 
     private const IDENTIFIER_PATTERN = '/^[a-z][a-z0-9_]*$/';
 
+    private const MAX_FILES_PER_SCENARIO = 8;
+
     private function __construct(
         private readonly Application $app,
         private readonly DatabaseManager $database,
         private readonly Migrator $migrator,
         private readonly Connection $ownerConnection,
         private readonly PostgreSqlContextInspector $contextInspector,
-    ) {
-    }
+    ) {}
 
     public static function fromApplication(Application $app): self
     {
@@ -103,19 +104,51 @@ final class OwnerAwareMigrationTestHarness
         array $expectedAbsentTables,
         Closure $assertions,
     ): void {
+        $this->runFiles(
+            absolutePaths: [$absolutePath],
+            expectedAbsentTables: $expectedAbsentTables,
+            assertions: $assertions,
+        );
+    }
+
+    /**
+     * @param  list<string>  $absolutePaths
+     * @param  list<string>  $expectedAbsentTables
+     * @param  Closure(OwnerAwareMigrationInspection): void  $assertions
+     */
+    public function runFiles(
+        array $absolutePaths,
+        array $expectedAbsentTables,
+        Closure $assertions,
+    ): void {
         $this->assertReady();
 
-        $canonicalPath = $this->resolveAllowedMigrationFile($absolutePath);
+        $this->assertSafeMigrationPathList($absolutePaths);
+        $canonicalPaths = array_map(
+            fn (string $path): string => $this->resolveAllowedMigrationFile($path),
+            $absolutePaths,
+        );
+        $this->assertNoDuplicatePaths($canonicalPaths);
         $this->assertSafeTableNames($expectedAbsentTables);
-        $migrationName = pathinfo($canonicalPath, PATHINFO_FILENAME);
+        $migrationNames = array_map(
+            static fn (string $path): string => pathinfo($path, PATHINFO_FILENAME),
+            $canonicalPaths,
+        );
+        $this->assertNoDuplicateMigrationNames($migrationNames);
 
         $inspection = new OwnerAwareMigrationInspection($this->ownerConnection);
-        $this->assertPreconditions($inspection, $migrationName, $expectedAbsentTables);
+        $baselineMigrations = $this->assertPreconditions(
+            $inspection,
+            $migrationNames,
+            $expectedAbsentTables,
+        );
 
         $previousDefaultConnection = $this->database->getDefaultConnection();
         $initialTransactionLevel = null;
         $outerTransactionStarted = false;
         $stage = 'contexto';
+        $currentMigrationName = null;
+        $currentMigrationPosition = null;
         $failure = null;
         $cleanupFailure = null;
 
@@ -140,27 +173,69 @@ final class OwnerAwareMigrationTestHarness
             }
 
             $this->migrator->usingConnection(self::OWNER_CONNECTION, function () use (
-                $canonicalPath,
-                $migrationName,
+                $canonicalPaths,
+                $migrationNames,
                 $expectedAbsentTables,
                 $assertions,
                 $inspection,
+                $baselineMigrations,
                 &$stage,
+                &$currentMigrationName,
+                &$currentMigrationPosition,
             ): void {
-                $stage = 'up';
-                $ran = $this->migrator->run([$canonicalPath], ['step' => true]);
+                $scenarioBatches = [];
+                $totalMigrations = count($canonicalPaths);
 
-                if ($ran !== [$canonicalPath]) {
-                    throw OwnerAwareMigrationException::forStage(
-                        'up',
-                        'El Migrator no ejecutó exactamente el archivo solicitado.'
-                    );
-                }
+                foreach ($canonicalPaths as $index => $canonicalPath) {
+                    $stage = 'up';
+                    $currentMigrationName = $migrationNames[$index];
+                    $currentMigrationPosition = $index + 1;
+                    $ran = $this->migrator->run([$canonicalPath], ['step' => true]);
 
-                if (! $inspection->migrationIsRegistered($migrationName)) {
-                    throw OwnerAwareMigrationException::forStage(
-                        'up',
-                        'La migración objetivo no quedó registrada temporalmente después de up.'
+                    if ($ran !== [$canonicalPath]) {
+                        throw OwnerAwareMigrationException::forStage(
+                            'up',
+                            $this->migrationFailureDetail(
+                                $currentMigrationName,
+                                $currentMigrationPosition,
+                                $totalMigrations,
+                                'El Migrator no ejecutó exactamente el archivo solicitado.',
+                            ),
+                        );
+                    }
+
+                    if (! $inspection->migrationIsRegistered($currentMigrationName)) {
+                        throw OwnerAwareMigrationException::forStage(
+                            'up',
+                            $this->migrationFailureDetail(
+                                $currentMigrationName,
+                                $currentMigrationPosition,
+                                $totalMigrations,
+                                'La migración no quedó registrada temporalmente después de up.',
+                            ),
+                        );
+                    }
+
+                    $batch = $inspection->migrationBatch($currentMigrationName);
+
+                    if ($batch === null) {
+                        throw OwnerAwareMigrationException::forStage(
+                            'up',
+                            $this->migrationFailureDetail(
+                                $currentMigrationName,
+                                $currentMigrationPosition,
+                                $totalMigrations,
+                                'No fue posible identificar el batch temporal de la migración.',
+                            ),
+                        );
+                    }
+
+                    $scenarioBatches[$currentMigrationName] = $batch;
+                    $this->assertMigrationSnapshot(
+                        inspection: $inspection,
+                        baselineMigrations: $baselineMigrations,
+                        scenarioMigrations: $scenarioBatches,
+                        stage: 'up',
                     );
                 }
 
@@ -168,28 +243,69 @@ final class OwnerAwareMigrationTestHarness
                     if (! $inspection->tableExists($table)) {
                         throw OwnerAwareMigrationException::forStage(
                             'up',
-                            'Un objeto esperado no fue creado por la migración objetivo.'
+                            'Un objeto esperado no fue creado por el escenario completo.'
                         );
                     }
                 }
 
                 $stage = 'assertion';
+                $currentMigrationName = null;
+                $currentMigrationPosition = null;
                 $assertions($inspection);
 
-                $stage = 'down';
-                $rolledBack = $this->migrator->rollback([$canonicalPath], ['step' => 1]);
+                foreach (array_reverse(array_keys($canonicalPaths)) as $index) {
+                    $stage = 'down';
+                    $canonicalPath = $canonicalPaths[$index];
+                    $currentMigrationName = $migrationNames[$index];
+                    $currentMigrationPosition = $index + 1;
+                    $latestMigration = $inspection->latestMigration();
 
-                if ($rolledBack !== [$canonicalPath]) {
-                    throw OwnerAwareMigrationException::forStage(
-                        'down',
-                        'El Migrator no revirtió exactamente el archivo solicitado.'
-                    );
-                }
+                    if ($latestMigration === null ||
+                        $latestMigration->migration !== $currentMigrationName ||
+                        $latestMigration->batch !== $scenarioBatches[$currentMigrationName]) {
+                        throw OwnerAwareMigrationException::forStage(
+                            'down',
+                            $this->migrationFailureDetail(
+                                $currentMigrationName,
+                                $currentMigrationPosition,
+                                $totalMigrations,
+                                'La última fila de migrations no corresponde al rollback solicitado.',
+                            ),
+                        );
+                    }
 
-                if ($inspection->migrationIsRegistered($migrationName)) {
-                    throw OwnerAwareMigrationException::forStage(
-                        'down',
-                        'El registro temporal de migrations no fue eliminado por rollback.'
+                    $rolledBack = $this->migrator->rollback([$canonicalPath], ['step' => 1]);
+
+                    if ($rolledBack !== [$canonicalPath]) {
+                        throw OwnerAwareMigrationException::forStage(
+                            'down',
+                            $this->migrationFailureDetail(
+                                $currentMigrationName,
+                                $currentMigrationPosition,
+                                $totalMigrations,
+                                'El Migrator no revirtió exactamente el archivo solicitado.',
+                            ),
+                        );
+                    }
+
+                    if ($inspection->migrationIsRegistered($currentMigrationName)) {
+                        throw OwnerAwareMigrationException::forStage(
+                            'down',
+                            $this->migrationFailureDetail(
+                                $currentMigrationName,
+                                $currentMigrationPosition,
+                                $totalMigrations,
+                                'El registro temporal de migrations no fue eliminado por rollback.',
+                            ),
+                        );
+                    }
+
+                    unset($scenarioBatches[$currentMigrationName]);
+                    $this->assertMigrationSnapshot(
+                        inspection: $inspection,
+                        baselineMigrations: $baselineMigrations,
+                        scenarioMigrations: $scenarioBatches,
+                        stage: 'down',
                     );
                 }
 
@@ -207,7 +323,12 @@ final class OwnerAwareMigrationTestHarness
         } catch (Throwable) {
             $failure = OwnerAwareMigrationException::forStage(
                 $stage,
-                $this->stageFailureDetail($stage),
+                $this->stageFailureDetail(
+                    $stage,
+                    $currentMigrationName,
+                    $currentMigrationPosition,
+                    count($canonicalPaths),
+                ),
             );
         } finally {
             try {
@@ -216,7 +337,7 @@ final class OwnerAwareMigrationTestHarness
                     initialTransactionLevel: $initialTransactionLevel,
                     previousDefaultConnection: $previousDefaultConnection,
                     inspection: $inspection,
-                    migrationName: $migrationName,
+                    migrationNames: $migrationNames,
                     expectedAbsentTables: $expectedAbsentTables,
                 );
             } catch (Throwable) {
@@ -230,6 +351,66 @@ final class OwnerAwareMigrationTestHarness
 
         if ($failure !== null) {
             throw $failure;
+        }
+    }
+
+    /**
+     * @param  array<mixed>  $paths
+     */
+    private function assertSafeMigrationPathList(array $paths): void
+    {
+        if (! array_is_list($paths) || $paths === []) {
+            throw OwnerAwareMigrationException::forStage(
+                'path',
+                'El escenario debe contener una lista no vacía de archivos.',
+            );
+        }
+
+        if (count($paths) > self::MAX_FILES_PER_SCENARIO) {
+            throw OwnerAwareMigrationException::forStage(
+                'path',
+                'El escenario excede el máximo permitido de archivos.',
+            );
+        }
+
+        foreach ($paths as $path) {
+            if (! is_string($path)) {
+                throw OwnerAwareMigrationException::forStage(
+                    'path',
+                    'La lista de migraciones contiene un path inválido.',
+                );
+            }
+        }
+    }
+
+    /**
+     * @param  list<string>  $paths
+     */
+    private function assertNoDuplicatePaths(array $paths): void
+    {
+        $normalizedPaths = array_map(
+            static fn (string $path): string => PHP_OS_FAMILY === 'Windows' ? strtolower($path) : $path,
+            $paths,
+        );
+
+        if (count(array_unique($normalizedPaths)) !== count($normalizedPaths)) {
+            throw OwnerAwareMigrationException::forStage(
+                'path',
+                'El escenario contiene archivos duplicados.',
+            );
+        }
+    }
+
+    /**
+     * @param  list<string>  $migrationNames
+     */
+    private function assertNoDuplicateMigrationNames(array $migrationNames): void
+    {
+        if (count(array_unique($migrationNames)) !== count($migrationNames)) {
+            throw OwnerAwareMigrationException::forStage(
+                'path',
+                'El escenario contiene nombres de migración duplicados.',
+            );
         }
     }
 
@@ -346,6 +527,13 @@ final class OwnerAwareMigrationTestHarness
      */
     private function assertSafeTableNames(array $tables): void
     {
+        if (! array_is_list($tables) || count(array_unique($tables, SORT_REGULAR)) !== count($tables)) {
+            throw OwnerAwareMigrationException::forStage(
+                'path',
+                'La lista de objetos esperados debe ser una lista sin duplicados.',
+            );
+        }
+
         foreach ($tables as $table) {
             if (! is_string($table) || preg_match(self::IDENTIFIER_PATTERN, $table) !== 1) {
                 throw OwnerAwareMigrationException::forStage(
@@ -358,18 +546,21 @@ final class OwnerAwareMigrationTestHarness
 
     /**
      * @param  list<string>  $expectedAbsentTables
+     * @return array<string, int>
      */
     private function assertPreconditions(
         OwnerAwareMigrationInspection $inspection,
-        string $migrationName,
+        array $migrationNames,
         array $expectedAbsentTables,
-    ): void {
+    ): array {
         try {
-            if ($inspection->migrationIsRegistered($migrationName)) {
-                throw OwnerAwareMigrationException::forStage(
-                    'contexto',
-                    'La migración objetivo ya está registrada persistentemente en migrations.'
-                );
+            foreach ($migrationNames as $migrationName) {
+                if ($inspection->migrationIsRegistered($migrationName)) {
+                    throw OwnerAwareMigrationException::forStage(
+                        'contexto',
+                        'Una migración del escenario ya está registrada persistentemente en migrations.'
+                    );
+                }
             }
 
             foreach ($expectedAbsentTables as $table) {
@@ -380,6 +571,8 @@ final class OwnerAwareMigrationTestHarness
                     );
                 }
             }
+
+            return $inspection->migrationBatches();
         } catch (OwnerAwareMigrationException $exception) {
             throw $exception;
         } catch (Throwable) {
@@ -398,7 +591,7 @@ final class OwnerAwareMigrationTestHarness
         ?int $initialTransactionLevel,
         string $previousDefaultConnection,
         OwnerAwareMigrationInspection $inspection,
-        string $migrationName,
+        array $migrationNames,
         array $expectedAbsentTables,
     ): void {
         try {
@@ -425,11 +618,13 @@ final class OwnerAwareMigrationTestHarness
             if ($outerTransactionStarted) {
                 $this->ownerConnection->getPdo();
 
-                if ($inspection->migrationIsRegistered($migrationName)) {
-                    throw OwnerAwareMigrationException::forStage(
-                        'cleanup',
-                        'El rollback exterior dejó un registro persistente en migrations.'
-                    );
+                foreach ($migrationNames as $migrationName) {
+                    if ($inspection->migrationIsRegistered($migrationName)) {
+                        throw OwnerAwareMigrationException::forStage(
+                            'cleanup',
+                            'El rollback exterior dejó un registro persistente en migrations.'
+                        );
+                    }
                 }
 
                 foreach ($expectedAbsentTables as $table) {
@@ -453,13 +648,61 @@ final class OwnerAwareMigrationTestHarness
         }
     }
 
-    private function stageFailureDetail(string $stage): string
-    {
-        return match ($stage) {
+    /**
+     * @param  array<string, int>  $baselineMigrations
+     * @param  array<string, int>  $scenarioMigrations
+     */
+    private function assertMigrationSnapshot(
+        OwnerAwareMigrationInspection $inspection,
+        array $baselineMigrations,
+        array $scenarioMigrations,
+        string $stage,
+    ): void {
+        $expected = $baselineMigrations + $scenarioMigrations;
+        $actual = $inspection->migrationBatches();
+
+        ksort($expected);
+        ksort($actual);
+
+        if ($actual !== $expected) {
+            throw OwnerAwareMigrationException::forStage(
+                $stage,
+                'El historial migrations contiene cambios ajenos al escenario controlado.',
+            );
+        }
+    }
+
+    private function stageFailureDetail(
+        string $stage,
+        ?string $migrationName,
+        ?int $migrationPosition,
+        int $totalMigrations,
+    ): string {
+        $detail = match ($stage) {
             'up' => 'La migración no pudo ejecutarse mediante el Migrator.',
             'assertion' => 'Las verificaciones del escenario no se cumplieron.',
             'down' => 'La migración no pudo revertirse mediante el Migrator.',
             default => 'No fue posible preparar la transacción exterior owner.',
         };
+
+        if ($migrationName === null || $migrationPosition === null || ! in_array($stage, ['up', 'down'], true)) {
+            return $detail;
+        }
+
+        return $this->migrationFailureDetail(
+            $migrationName,
+            $migrationPosition,
+            $totalMigrations,
+            $detail,
+        );
+    }
+
+    private function migrationFailureDetail(
+        string $migrationName,
+        int $migrationPosition,
+        int $totalMigrations,
+        string $detail,
+    ): string {
+        return "Migración [{$migrationName}] ({$migrationPosition}/{$totalMigrations}): {$detail}";
     }
 }

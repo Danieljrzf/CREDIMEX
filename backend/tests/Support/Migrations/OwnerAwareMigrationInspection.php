@@ -13,8 +13,7 @@ final class OwnerAwareMigrationInspection
 
     public function __construct(
         private readonly Connection $ownerConnection,
-    ) {
-    }
+    ) {}
 
     public function tableExists(string $table): bool
     {
@@ -29,6 +28,58 @@ final class OwnerAwareMigrationInspection
             ->table('migrations')
             ->where('migration', $migration)
             ->exists();
+    }
+
+    public function migrationBatch(string $migration): ?int
+    {
+        $batch = $this->ownerConnection
+            ->table('migrations')
+            ->where('migration', $migration)
+            ->value('batch');
+
+        return $batch === null ? null : (int) $batch;
+    }
+
+    /**
+     * @return array<string, int>
+     */
+    public function migrationBatches(): array
+    {
+        $rows = $this->ownerConnection->select(
+            'select migration, batch
+             from migrations
+             order by migration'
+        ) ?? [];
+        $migrations = [];
+
+        foreach ($rows as $row) {
+            $migrations[(string) $row->migration] = (int) $row->batch;
+        }
+
+        return $migrations;
+    }
+
+    /**
+     * @return object{migration: string, batch: int}|null
+     */
+    public function latestMigration(): ?object
+    {
+        $rows = $this->ownerConnection->select(
+            'select migration, batch
+             from migrations
+             order by batch desc, migration desc
+             limit 1'
+        ) ?? [];
+        $row = $rows[0] ?? null;
+
+        if ($row === null) {
+            return null;
+        }
+
+        return (object) [
+            'migration' => (string) $row->migration,
+            'batch' => (int) $row->batch,
+        ];
     }
 
     /**
@@ -73,6 +124,49 @@ final class OwnerAwareMigrationInspection
                   )
             ) as value',
             [PostgreSqlTestSafetyGuard::EXPECTED_SCHEMA, $table]
+        );
+
+        return PostgreSqlBooleanConverter::toBool($row?->value);
+    }
+
+    public function hasForeignKey(
+        string $table,
+        string $constraint,
+        string $referencedTable,
+        string $deleteRule = 'NO ACTION',
+    ): bool {
+        $this->assertSafeIdentifier($table);
+        $this->assertSafeIdentifier($constraint);
+        $this->assertSafeIdentifier($referencedTable);
+
+        $row = $this->ownerConnection->selectOne(
+            'select exists (
+                select 1
+                from information_schema.table_constraints tc
+                join information_schema.referential_constraints rc
+                  on rc.constraint_catalog = tc.constraint_catalog
+                 and rc.constraint_schema = tc.constraint_schema
+                 and rc.constraint_name = tc.constraint_name
+                join information_schema.constraint_column_usage ccu
+                  on ccu.constraint_catalog = tc.constraint_catalog
+                 and ccu.constraint_schema = tc.constraint_schema
+                 and ccu.constraint_name = tc.constraint_name
+                where tc.table_schema = ?
+                  and tc.table_name = ?
+                  and tc.constraint_name = ?
+                  and tc.constraint_type = \'FOREIGN KEY\'
+                  and ccu.table_schema = ?
+                  and ccu.table_name = ?
+                  and rc.delete_rule = ?
+            ) as value',
+            [
+                PostgreSqlTestSafetyGuard::EXPECTED_SCHEMA,
+                $table,
+                $constraint,
+                PostgreSqlTestSafetyGuard::EXPECTED_SCHEMA,
+                $referencedTable,
+                $deleteRule,
+            ]
         );
 
         return PostgreSqlBooleanConverter::toBool($row?->value);
