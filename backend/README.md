@@ -39,7 +39,15 @@ php artisan migrate --database=pgsql_owner
 En testing: añadir `--env=testing`.
 
 La tabla técnica `migrations` ya existe en `credimex` (dev y test).
-Todavía no se han creado migraciones del dominio.
+
+Las migraciones RBAC iniciales están en el repositorio:
+
+- `2026_09_16_000001_create_roles_table.php`
+- `2026_09_16_000002_create_permisos_table.php`
+- `2026_09_16_000003_create_rol_permisos_table.php`
+
+Commit técnico: `c790e8d`. Fueron validadas mediante D-120. Esta
+subfase no las desplegó persistentemente en desarrollo ni producción.
 
 ## Rol de aplicación (`DB_APP_ROLE`)
 
@@ -165,9 +173,9 @@ tests/Fixtures/migrations/0000_00_00_000000_create_zz_test_owner_migration_harne
 Las fixtures no pertenecen al inventario de 67 tablas y no dejan
 residuos. El rollback multi-file fue auditado como seguro.
 
-Resultados confirmados al cierre de 3B.3.1A.2: **106 pruebas**,
-**603 assertions**. La integración owner-aware se ejecutó dos veces
-consecutivas: **2 pruebas / 75 assertions** en cada corrida.
+Resultados confirmados al cierre de 3B.3.1B: **107 pruebas**,
+**912 assertions**. La integración RBAC se ejecutó dos veces
+consecutivas: **1 prueba / 309 assertions** en cada corrida.
 
 ## Estado actual
 
@@ -179,9 +187,9 @@ Fase 3B.3 en curso.
 - 3B.3.1A (harness owner-aware): completada técnica y documentalmente.
 - 3B.3.1A.2 (extensión multiarchivo): completada técnica y
   documentalmente.
-- Siguiente subfase: **3B.3.1B — migraciones de roles, permisos y
-  rol_permisos**.
-- Posterior: **3B.3.1C — datos iniciales RBAC**.
+- 3B.3.1B (migraciones RBAC iniciales): completada técnica y
+  documentalmente.
+- Siguiente subfase: **3B.3.1C — datos iniciales RBAC**.
 - Posterior: **3B.3.2** — usuarios y dispositivos.
 
 Todavía **no** se debe:

@@ -117,6 +117,10 @@ existen.
 Este cierre no crea migraciones ni tablas del dominio y no ejecuta
 seeds.
 
+**Actualización v2.5:** las migraciones RBAC posteriores existen en el
+repositorio (`c790e8d`) y 3B.3.1B quedó completada. Este documento
+conserva el cierre histórico de 3B.3.1A.2.
+
 ## Impacto en manuales
 
 Se actualiza la guía técnica del backend para distinguir `runFile()` y

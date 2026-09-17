@@ -22,22 +22,26 @@ Versión documental vigente para D-120: **v2.3**.
 
 La subfase **3B.3.1A.2** (extensión controlada de D-120 para escenarios
 ordenados multiarchivo) está **completada técnica y documentalmente**.
-Versión documental vigente: **v2.4**. D-121 queda aprobada con alcance
-refinado a la base RBAC. El commit técnico es `9621ae1`; el commit
-documental v2.4 es `0848014` —
-`docs: documentar el cierre de la subfase 3B.3.1A.2`. D-122 continúa
-pendiente.
+Versión documental v2.4. D-121 queda aprobada con alcance refinado a la
+base RBAC. El commit técnico es `9621ae1`; el commit documental v2.4 es
+`0848014`. D-122 continúa pendiente.
+
+La subfase **3B.3.1B** (migraciones RBAC iniciales) está **completada
+técnica y documentalmente**. Versión documental vigente: **v2.5**. El
+commit técnico es `c790e8d` —
+`feat: implementar migraciones RBAC iniciales`. El commit documental
+v2.5 está pendiente de registrar. D-122 continúa pendiente.
 
 El backend Laravel está conectado a PostgreSQL local con esquema
 `credimex`, cuatro roles por entorno, tabla técnica `migrations`,
-guarda fail-closed de pruebas y helper de privilegios
-(`PostgreSqlGrantManager`), además del harness D-120.
+guarda fail-closed de pruebas, helper de privilegios
+(`PostgreSqlGrantManager`) y harness D-120.
 
-Todavía **no** existen migraciones ni tablas del dominio.
+Las migraciones de `roles`, `permisos` y `rol_permisos` existen en el
+repositorio. Esta subfase no las desplegó persistentemente en
+desarrollo ni producción; D-120 las creó y revirtió en testing.
 
-La siguiente subfase autorizada es **3B.3.1B — migraciones de roles,
-permisos y rol_permisos**. La posterior **3B.3.1C** cubrirá datos
-iniciales RBAC.
+La siguiente subfase autorizada es **3B.3.1C — datos iniciales RBAC**.
 
 ## Documento maestro vigente
 
@@ -118,6 +122,22 @@ docs/
 | Cierre subfase 3B.3.1A — Harness owner-aware PostgreSQL | `docs/06-architecture/cierre-subfase-3b3-1a-harness-owner-aware-postgresql.md` | Aprobado |
 | Extensión del harness y base RBAC v2.4 | `docs/07-decisions/CREDIMEX_Decisiones_Extension_Harness_y_RBAC_v2.4.md` | Aprobado |
 | Cierre subfase 3B.3.1A.2 — Extensión multiarchivo y RBAC | `docs/06-architecture/cierre-subfase-3b3-1a2-extension-multifile-rbac.md` | Aprobado |
+| Migraciones RBAC iniciales v2.5 | `docs/07-decisions/CREDIMEX_Decisiones_Migraciones_RBAC_v2.5.md` | Aprobado |
+| Cierre subfase 3B.3.1B — Migraciones RBAC | `docs/06-architecture/cierre-subfase-3b3-1b-migraciones-rbac.md` | Aprobado |
+
+La versión documental **v2.5** (subfase 3B.3.1B) incluye:
+
+- migraciones de `roles`, `permisos` y `rol_permisos` en el repositorio;
+- identity `GENERATED ALWAYS`, timestamps sin default y FK `NO ACTION`;
+- CHECK regex estáticos mediante `pgsql_owner`;
+- grants app únicamente `SELECT`, sin `USAGE`;
+- ampliación read-only de `OwnerAwareMigrationInspection`;
+- integración D-120 con `runFiles()` y dos corridas sin residuos;
+- suite validada: 107 pruebas / 912 assertions;
+- integración RBAC ejecutada dos veces: 1 prueba / 309 assertions
+  por corrida;
+- commit técnico `c790e8d`; commit documental pendiente de registrar;
+- siguiente subfase: 3B.3.1C.
 
 La versión documental **v2.4** (subfase 3B.3.1A.2) incluye:
 
@@ -252,3 +272,4 @@ La versión documental **v1.7** (Fase 3A.3) incluye:
 - Las decisiones D-118 y D-119 están en `CREDIMEX_Decisiones_Helper_Privilegios_PostgreSQL_v2.2.md`.
 - La decisión D-120 está en `CREDIMEX_Decisiones_Harness_Migraciones_PostgreSQL_v2.3.md`.
 - La extensión de D-120 y la decisión D-121 refinada están en `CREDIMEX_Decisiones_Extension_Harness_y_RBAC_v2.4.md`.
+- La implementación efectiva de D-121 / 3B.3.1B está en `CREDIMEX_Decisiones_Migraciones_RBAC_v2.5.md`.

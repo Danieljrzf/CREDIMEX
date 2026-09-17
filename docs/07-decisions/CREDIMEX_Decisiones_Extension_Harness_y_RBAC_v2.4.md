@@ -299,4 +299,8 @@ permisos y su matriz. No existe rol `coordinador` aprobado.
 - D-121: aprobada con alcance RBAC refinado;
 - D-122: pendiente;
 - 3B.3.1A.2: completada;
-- siguiente subfase: 3B.3.1B.
+- siguiente subfase al cierre de v2.4: 3B.3.1B.
+
+**Actualización v2.5:** las migraciones RBAC se implementaron en el
+repositorio (`c790e8d`). 3B.3.1B quedó completada. D-121 no cambió de
+alcance. La siguiente subfase vigente es 3B.3.1C.

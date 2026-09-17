@@ -545,3 +545,55 @@ Cada registro debe contener:
   `test: extender harness owner-aware para migraciones dependientes`.
 - **Commit documental v2.4:** `0848014` —
   `docs: documentar el cierre de la subfase 3B.3.1A.2`.
+
+### Versión 2.5
+
+- **Fecha:** 16 de septiembre de 2026
+- **Fase:** 3B.3.1B — migraciones RBAC iniciales.
+- **Archivos creados:**
+  - `docs/07-decisions/CREDIMEX_Decisiones_Migraciones_RBAC_v2.5.md`;
+  - `docs/06-architecture/cierre-subfase-3b3-1b-migraciones-rbac.md`.
+- **Archivos documentales modificados:**
+  - `AGENTS.md`;
+  - `backend/README.md`;
+  - `docs/00-index.md`;
+  - `docs/00-historial-documentacion.md`;
+  - `docs/04-database/convenciones-fisicas-y-orden-migraciones.md`;
+  - `docs/06-architecture/cierre-subfase-3b3-1a2-extension-multifile-rbac.md`;
+  - `docs/07-decisions/CREDIMEX_Decisiones_Extension_Harness_y_RBAC_v2.4.md`.
+- **Decisiones:**
+  - D-120 permanece aprobada y ampliada con soporte multi-file;
+  - D-121 permanece aprobada para RBAC; 3B.3.1B implementada;
+  - D-122 continúa pendiente.
+- **Contenido:**
+  - tres migraciones RBAC en el repositorio;
+  - identity `GENERATED ALWAYS AS IDENTITY`;
+  - timestamps `TIMESTAMPTZ NOT NULL` sin default;
+  - CHECK regex estáticos con `pgsql_owner`;
+  - UNIQUE, FK `NO ACTION` e índice `permiso_id`;
+  - grants app únicamente `SELECT`, sin `USAGE`;
+  - inspección read-only ampliada;
+  - integración `runFiles()` con savepoints y cero residuos;
+  - sin despliegue persistente en desarrollo ni producción;
+  - sin seeds ni datos iniciales.
+- **Validación:**
+  - unitarias harness: 34 pruebas / 325 assertions;
+  - unitarias PostgreSqlGrantManager: 47 pruebas / 122 assertions;
+  - integración owner-aware: 2 pruebas / 75 assertions;
+  - integración RBAC, corrida 1: 1 prueba / 309 assertions;
+  - integración RBAC, corrida 2: 1 prueba / 309 assertions;
+  - suite completa: 107 pruebas / 912 assertions;
+  - PHP lint correcto; Pint aprobado; `git diff --check` limpio;
+  - cero tablas o filas RBAC residuales;
+  - baseline histórico de `migrations` intacto;
+  - default connection restaurada y `transactionLevel` owner en `0`;
+  - app sin privilegios sobre `migrations` ni `migrations_id_seq`.
+- **Siguiente subfase:** 3B.3.1C — datos iniciales RBAC.
+- **Impacto en manuales:**
+  - Manual técnico: migraciones RBAC, grants `SELECT` y pruebas D-120;
+  - sin cambios en manuales funcionales porque todavía no existen
+    datos iniciales ni funcionalidad de asignación.
+- **Commit técnico relacionado:** `c790e8d` —
+  `feat: implementar migraciones RBAC iniciales`.
+- **Commit documental v2.5:** pendiente de registrar.
+- **Tag / merge / push:** no creados ni afirmados.

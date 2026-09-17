@@ -111,6 +111,7 @@ La carpeta `android/` se reserva para la aplicación móvil futura.
 - Conexión ordinaria: `pgsql` (roles app).
 - Migraciones y DDL: únicamente `pgsql_owner` (roles owner).
 - Nunca ejecutar migraciones con la conexión `pgsql`.
+- Las migraciones de dominio son owner-aware: usan `pgsql_owner`.
 - Las migraciones futuras del dominio requerirán `pgsql_owner`.
 - Desarrollo y testing usan roles y bases distintos, sin acceso cruzado.
 - Secretos solo en `.env` / `.env.testing` locales; nunca en
@@ -138,6 +139,9 @@ La carpeta `android/` se reserva para la aplicación móvil futura.
   `0`; el harness no revierte transacciones que no creó.
 - Los tests owner-aware de migraciones son **SERIAL ONLY**; no deben
   ejecutarse en paralelo.
+- Si Blueprint no ofrece API suficiente para un CHECK regex nombrado,
+  las migraciones deben usar SQL PostgreSQL estático y controlado,
+  ejecutado por `pgsql_owner` y limitado al esquema `credimex`.
 
 ## Privilegios PostgreSQL en migraciones futuras
 
@@ -153,6 +157,8 @@ La carpeta `android/` se reserva para la aplicación móvil futura.
 - Usar `pgsql_owner` para operaciones administrativas de privilegios.
 - Las migraciones ejecutadas por owner deben obtener el manager con
   `PostgreSqlGrantManager::fromOwnerMigration(app())`.
+- Los grants de una migración de dominio se conceden en `up()` y se
+  revocan en `down()` mediante esa factory, no con `fromApplication()`.
 - El código de aplicación ordinario conserva
   `PostgreSqlGrantManager::fromApplication(app())`.
 - Las migraciones no deben manipular manualmente la default connection

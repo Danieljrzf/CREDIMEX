@@ -35,16 +35,21 @@ permisos llevan `created_at` / `updated_at`; `rol_permisos` solo
 
 ---
 
-## 2. Nombres futuros de migraciones (orientativo)
+## 2. Nombres de migraciones
 
-Patrón sugerido (cuando se autorice código):
+Patrón:
 
 - prefijo secuencial por grupo D-85;
-- descripción breve en snake_case;
-- sin SQL en este documento.
+- descripción breve en snake_case.
 
-Ejemplo conceptual de nombre de archivo (no creado):
-`2026_xx_xx_000101_create_roles_table` — solo ilustrativo.
+Las primeras migraciones de dominio (3B.3.1B / v2.5) existen en el
+repositorio:
+
+- `2026_09_16_000001_create_roles_table.php`;
+- `2026_09_16_000002_create_permisos_table.php`;
+- `2026_09_16_000003_create_rol_permisos_table.php`.
+
+Están implementadas en código; no se afirma despliegue persistente.
 
 ---
 
