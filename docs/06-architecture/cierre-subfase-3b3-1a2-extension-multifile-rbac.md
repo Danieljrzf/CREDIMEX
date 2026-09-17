@@ -9,7 +9,8 @@ previas a RBAC
 **Commit técnico 3B.3.1A.2:** `9621ae1` —
 `test: extender harness owner-aware para migraciones dependientes`
 
-**Commit documental v2.4:** pendiente de registrar.
+**Commit documental v2.4:** `0848014` —
+`docs: documentar el cierre de la subfase 3B.3.1A.2`.
 
 ## Resultado
 

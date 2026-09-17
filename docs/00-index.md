@@ -24,7 +24,9 @@ La subfase **3B.3.1A.2** (extensión controlada de D-120 para escenarios
 ordenados multiarchivo) está **completada técnica y documentalmente**.
 Versión documental vigente: **v2.4**. D-121 queda aprobada con alcance
 refinado a la base RBAC. El commit técnico es `9621ae1`; el commit
-documental v2.4 está pendiente de registrar. D-122 continúa pendiente.
+documental v2.4 es `0848014` —
+`docs: documentar el cierre de la subfase 3B.3.1A.2`. D-122 continúa
+pendiente.
 
 El backend Laravel está conectado a PostgreSQL local con esquema
 `credimex`, cuatro roles por entorno, tabla técnica `migrations`,
@@ -131,7 +133,7 @@ La versión documental **v2.4** (subfase 3B.3.1A.2) incluye:
 - suite validada: 106 pruebas / 603 assertions;
 - integración owner-aware ejecutada dos veces: 2 pruebas /
   75 assertions por corrida;
-- commit técnico `9621ae1`; commit documental pendiente;
+- commit técnico `9621ae1`; commit documental `0848014`;
 - siguiente subfase: 3B.3.1B.
 
 La versión documental **v2.3** (subfase 3B.3.1A) incluye:
