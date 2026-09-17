@@ -210,6 +210,51 @@ controlada.
 
 Todos están por debajo del límite PostgreSQL de 63 bytes.
 
+#### Expresiones CHECK cerradas para 3B.3.1B
+
+La regex conceptual y la expresión que debe recibir PostgreSQL quedan
+definidas por separado. El escape concreto dentro de una cadena PHP se
+resolverá durante la implementación.
+
+`roles.codigo`:
+
+- regex conceptual: `^[a-z][a-z0-9_]*$`;
+- expresión PostgreSQL conceptual:
+  `CHECK ("codigo" ~ '^[a-z][a-z0-9_]*$')`;
+- constraint: `chk_roles_codigo`;
+- ejemplos válidos: `cobrador`, `supervisor`, `administrador`,
+  `cobranza_diaria`;
+- ejemplos inválidos: `Administrador`, `_cobrador`,
+  `cobrador-activo`, `cobrador activo`.
+
+`permisos.modulo`:
+
+- regex conceptual: `^[a-z][a-z0-9_]*$`;
+- expresión PostgreSQL conceptual:
+  `CHECK ("modulo" ~ '^[a-z][a-z0-9_]*$')`;
+- constraint: `chk_permisos_modulo`;
+- ejemplos válidos: `clientes`, `pagos`, `creditos`, `caja_diaria`;
+- ejemplos inválidos: `Clientes`, `_clientes`, `clientes-activos`,
+  `clientes activos`.
+
+`permisos.codigo`:
+
+- regex conceptual:
+  `^[a-z][a-z0-9_]*\.[a-z][a-z0-9_]*$`;
+- expresión PostgreSQL conceptual:
+  `CHECK ("codigo" ~ '^[a-z][a-z0-9_]*\.[a-z][a-z0-9_]*$')`;
+- constraint: `chk_permisos_codigo`;
+- ejemplos válidos: `clientes.registrar`, `clientes.consultar`,
+  `pagos.registrar`, `pagos.reversar`, `creditos.autorizar`;
+- ejemplos inválidos: `clientes registrar`, `clientes-registrar`,
+  `clientesXregistrar`, `.clientes`, `clientes.`,
+  `clientes..registrar`, `clientes.registrar.extra`,
+  `Clientes.registrar`, `clientes.Registrar`.
+
+En `permisos.codigo`, `\.` exige un punto literal entre módulo y acción.
+No se admite `.` sin escape porque permitiría cualquier carácter como
+separador.
+
 ### 4.4 Privilegios
 
 En 3B.3.1B el rol app recibe exclusivamente `SELECT` sobre las tres
