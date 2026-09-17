@@ -595,5 +595,6 @@ Cada registro debe contener:
     datos iniciales ni funcionalidad de asignación.
 - **Commit técnico relacionado:** `c790e8d` —
   `feat: implementar migraciones RBAC iniciales`.
-- **Commit documental v2.5:** pendiente de registrar.
+- **Commit documental v2.5:** `214d1ba` —
+  `docs: documentar el cierre de la subfase 3B.3.1B`.
 - **Tag / merge / push:** no creados ni afirmados.

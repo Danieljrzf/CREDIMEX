@@ -30,7 +30,9 @@ La subfase **3B.3.1B** (migraciones RBAC iniciales) está **completada
 técnica y documentalmente**. Versión documental vigente: **v2.5**. El
 commit técnico es `c790e8d` —
 `feat: implementar migraciones RBAC iniciales`. El commit documental
-v2.5 está pendiente de registrar. D-122 continúa pendiente.
+v2.5 es `214d1ba` —
+`docs: documentar el cierre de la subfase 3B.3.1B`. D-122 continúa
+pendiente.
 
 El backend Laravel está conectado a PostgreSQL local con esquema
 `credimex`, cuatro roles por entorno, tabla técnica `migrations`,
@@ -136,7 +138,8 @@ La versión documental **v2.5** (subfase 3B.3.1B) incluye:
 - suite validada: 107 pruebas / 912 assertions;
 - integración RBAC ejecutada dos veces: 1 prueba / 309 assertions
   por corrida;
-- commit técnico `c790e8d`; commit documental pendiente de registrar;
+- commit técnico `c790e8d`; commit documental `214d1ba` —
+  `docs: documentar el cierre de la subfase 3B.3.1B`;
 - siguiente subfase: 3B.3.1C.
 
 La versión documental **v2.4** (subfase 3B.3.1A.2) incluye:
