@@ -644,5 +644,6 @@ Cada registro debe contener:
     implementados ni probados;
   - Manual técnico futuro: manifiesto y mecanismo de carga, cuando
     exista implementación.
-- **Commit relacionado:** pendiente de registrar.
+- **Commit documental v2.6:** `d91a826` —
+  `docs: aprobar diseño de datos iniciales RBAC`.
 - **Tag / merge / push:** no creados ni afirmados.
