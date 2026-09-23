@@ -113,6 +113,11 @@ La carpeta `android/` se reserva para la aplicación móvil futura.
 - Nunca ejecutar migraciones con la conexión `pgsql`.
 - Las migraciones de dominio son owner-aware: usan `pgsql_owner`.
 - Las migraciones futuras del dominio requerirán `pgsql_owner`.
+- El catálogo inicial RBAC de 3B.3.1C está congelado en D-121 / v2.6
+  (3 roles, 13 permisos, 35 relaciones explícitas). La implementación
+  permanece pendiente. No inventar permisos ni usar `DatabaseSeeder`
+  para esa carga; el archivo previsto es la migración de datos
+  owner-aware `2026_09_16_000004_insert_initial_rbac_catalog.php`.
 - Desarrollo y testing usan roles y bases distintos, sin acceso cruzado.
 - Secretos solo en `.env` / `.env.testing` locales; nunca en
   documentación, ejemplos ni commits.

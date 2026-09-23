@@ -274,6 +274,11 @@ para el diseño posterior de 3B.3.1C son:
 `cobrador`, `supervisor` y `administrador`, además del catálogo de
 permisos y su matriz. No existe rol `coordinador` aprobado.
 
+**Actualización v2.6:** el manifiesto de 3B.3.1C (3 roles, 13 permisos,
+35 relaciones, carga owner-aware, sin `DatabaseSeeder`) quedó cerrado
+en `CREDIMEX_Decisiones_Catalogo_Inicial_RBAC_v2.6.md`. La
+implementación permanece pendiente.
+
 ## 5. Validación
 
 - unitarias del harness: 34 pruebas / 325 assertions;
@@ -304,3 +309,11 @@ permisos y su matriz. No existe rol `coordinador` aprobado.
 **Actualización v2.5:** las migraciones RBAC se implementaron en el
 repositorio (`c790e8d`). 3B.3.1B quedó completada. D-121 no cambió de
 alcance. La siguiente subfase vigente es 3B.3.1C.
+
+**Actualización v2.6:** el diseño específico de 3B.3.1C quedó cerrado
+como refinamiento de D-121. La carga inicial no usará
+`DatabaseSeeder`; usará una migración de datos owner-aware. El
+manifiesto (3 roles, 13 permisos, 35 relaciones) está en
+`docs/07-decisions/CREDIMEX_Decisiones_Catalogo_Inicial_RBAC_v2.6.md`.
+La implementación permanece pendiente. Este documento conserva el
+cierre histórico de 3B.3.1A.2.

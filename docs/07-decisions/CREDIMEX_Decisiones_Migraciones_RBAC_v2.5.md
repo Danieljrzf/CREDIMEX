@@ -268,3 +268,9 @@ inventario.
 - siguiente subfase: **3B.3.1C — datos iniciales RBAC**.
 
 No se crea tag. No se afirma merge ni push.
+
+**Actualización v2.6:** el catálogo inicial, la matriz de 35 relaciones
+y el mecanismo owner-aware de 3B.3.1C quedaron aprobados en
+`docs/07-decisions/CREDIMEX_Decisiones_Catalogo_Inicial_RBAC_v2.6.md`.
+La implementación de 3B.3.1C permanece pendiente. Este documento
+conserva el cierre histórico de 3B.3.1B.

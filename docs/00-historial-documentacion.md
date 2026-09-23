@@ -598,3 +598,51 @@ Cada registro debe contener:
 - **Commit documental v2.5:** `214d1ba` —
   `docs: documentar el cierre de la subfase 3B.3.1B`.
 - **Tag / merge / push:** no creados ni afirmados.
+
+### Versión 2.6
+
+- **Fecha:** 16 de septiembre de 2026
+- **Fase:** 3B.3.1C — datos iniciales RBAC (diseño aprobado;
+  implementación pendiente).
+- **Archivos creados:**
+  - `docs/07-decisions/CREDIMEX_Decisiones_Catalogo_Inicial_RBAC_v2.6.md`;
+  - `docs/06-architecture/diseno-subfase-3b3-1c-datos-iniciales-rbac.md`.
+- **Archivos documentales modificados:**
+  - `AGENTS.md`;
+  - `backend/README.md`;
+  - `docs/00-index.md`;
+  - `docs/00-historial-documentacion.md`;
+  - `docs/04-database/convenciones-fisicas-y-orden-migraciones.md`;
+  - `docs/06-architecture/cierre-subfase-3b3-1a2-extension-multifile-rbac.md`;
+  - `docs/06-architecture/cierre-subfase-3b3-1b-migraciones-rbac.md`;
+  - `docs/07-decisions/CREDIMEX_Decisiones_Extension_Harness_y_RBAC_v2.4.md`;
+  - `docs/07-decisions/CREDIMEX_Decisiones_Migraciones_RBAC_v2.5.md`.
+- **Decisiones:**
+  - D-120 permanece aprobada y ampliada; sin cambios;
+  - D-121 permanece aprobada para RBAC y se refina con el manifiesto
+    de 3B.3.1C;
+  - D-122 continúa pendiente, sin cambio de significado;
+  - no se crea una D-xxx nueva.
+- **Contenido:**
+  - 3 roles iniciales con nombres mostrados aprobados;
+  - 13 permisos exactos y 8 módulos;
+  - 35 relaciones explícitas (9 + 13 + 13);
+  - sin herencia runtime;
+  - alcance de datos como filtro contextual;
+  - un único `creditos.autorizar`;
+  - `auditoria.consultar` con D-16 como filtro;
+  - exclusiones del catálogo inicial;
+  - migración de datos owner-aware prevista
+    (`000004_insert_initial_rbac_catalog`);
+  - IDs por `codigo`; timestamp único; idempotencia fail-closed;
+  - relaciones inesperadas = conflicto; `down()` selectivo;
+  - inventario 67 sin cambio;
+  - implementación, SQL y filas PostgreSQL no afirmadas.
+- **Pendientes:** implementar 3B.3.1C; D-122; 3B.3.2.
+- **Impacto en manuales:**
+  - ningún manual funcional: los datos iniciales no están
+    implementados ni probados;
+  - Manual técnico futuro: manifiesto y mecanismo de carga, cuando
+    exista implementación.
+- **Commit relacionado:** pendiente de registrar.
+- **Tag / merge / push:** no creados ni afirmados.

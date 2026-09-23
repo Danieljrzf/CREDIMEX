@@ -189,7 +189,9 @@ Fase 3B.3 en curso.
   documentalmente.
 - 3B.3.1B (migraciones RBAC iniciales): completada técnica y
   documentalmente.
-- Siguiente subfase: **3B.3.1C — datos iniciales RBAC**.
+- 3B.3.1C (datos iniciales RBAC): diseño funcional y mecanismo
+  técnico aprobados (v2.6); implementación pendiente. No usar
+  `DatabaseSeeder` ni `db:seed` para este catálogo.
 - Posterior: **3B.3.2** — usuarios y dispositivos.
 
 Todavía **no** se debe:

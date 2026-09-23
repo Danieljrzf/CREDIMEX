@@ -43,7 +43,11 @@ Las migraciones de `roles`, `permisos` y `rol_permisos` existen en el
 repositorio. Esta subfase no las desplegó persistentemente en
 desarrollo ni producción; D-120 las creó y revirtió en testing.
 
-La siguiente subfase autorizada es **3B.3.1C — datos iniciales RBAC**.
+La subfase **3B.3.1C** (datos iniciales RBAC) tiene **diseño funcional
+y mecanismo técnico aprobados**. Versión documental vigente para ese
+refinamiento de D-121: **v2.6**. La implementación permanece pendiente.
+No se afirma que existan filas RBAC en PostgreSQL. D-122 continúa
+pendiente.
 
 ## Documento maestro vigente
 
@@ -126,6 +130,26 @@ docs/
 | Cierre subfase 3B.3.1A.2 — Extensión multiarchivo y RBAC | `docs/06-architecture/cierre-subfase-3b3-1a2-extension-multifile-rbac.md` | Aprobado |
 | Migraciones RBAC iniciales v2.5 | `docs/07-decisions/CREDIMEX_Decisiones_Migraciones_RBAC_v2.5.md` | Aprobado |
 | Cierre subfase 3B.3.1B — Migraciones RBAC | `docs/06-architecture/cierre-subfase-3b3-1b-migraciones-rbac.md` | Aprobado |
+| Catálogo inicial RBAC v2.6 | `docs/07-decisions/CREDIMEX_Decisiones_Catalogo_Inicial_RBAC_v2.6.md` | Aprobado |
+| Diseño subfase 3B.3.1C — Datos iniciales RBAC | `docs/06-architecture/diseno-subfase-3b3-1c-datos-iniciales-rbac.md` | Aprobado |
+
+La versión documental **v2.6** (subfase 3B.3.1C, diseño) incluye:
+
+- refinamiento de D-121 con el manifiesto de datos iniciales RBAC;
+- 3 roles (`cobrador`, `supervisor`, `administrador`) y nombres
+  mostrados `Cobrador`, `Supervisor`, `Administrador`;
+- 13 permisos exactos y 8 módulos;
+- matriz explícita de 35 relaciones, sin herencia runtime;
+- alcance `asignados` / `territorio` / `todos` como filtro, no como
+  permiso;
+- un solo `creditos.autorizar`; D-16 como filtro de
+  `auditoria.consultar`;
+- carga owner-aware prevista en
+  `2026_09_16_000004_insert_initial_rbac_catalog.php` (archivo aún no
+  creado);
+- app conserva `SELECT`; idempotencia fail-closed; `down()` selectivo;
+- inventario 67 sin cambio; implementación de 3B.3.1C pendiente;
+- D-122 continúa pendiente.
 
 La versión documental **v2.5** (subfase 3B.3.1B) incluye:
 
@@ -276,3 +300,4 @@ La versión documental **v1.7** (Fase 3A.3) incluye:
 - La decisión D-120 está en `CREDIMEX_Decisiones_Harness_Migraciones_PostgreSQL_v2.3.md`.
 - La extensión de D-120 y la decisión D-121 refinada están en `CREDIMEX_Decisiones_Extension_Harness_y_RBAC_v2.4.md`.
 - La implementación efectiva de D-121 / 3B.3.1B está en `CREDIMEX_Decisiones_Migraciones_RBAC_v2.5.md`.
+- El refinamiento de D-121 / manifiesto 3B.3.1C está en `CREDIMEX_Decisiones_Catalogo_Inicial_RBAC_v2.6.md`.

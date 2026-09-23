@@ -105,6 +105,11 @@ iniciales RBAC.
 
 Este cierre no crea seeders ni inicia 3B.3.1C.
 
+**Actualización v2.6:** el diseño funcional y el mecanismo técnico de
+3B.3.1C quedaron aprobados. La implementación permanece pendiente. Este
+documento conserva el cierre histórico de 3B.3.1B. Ver
+`docs/07-decisions/CREDIMEX_Decisiones_Catalogo_Inicial_RBAC_v2.6.md`.
+
 ## Impacto en manuales
 
 Se actualiza la guía técnica del backend para registrar las tres

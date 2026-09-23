@@ -51,6 +51,11 @@ repositorio:
 
 Están implementadas en código; no se afirma despliegue persistente.
 
+**Actualización v2.6:** la migración de datos prevista para 3B.3.1C
+(aún no creada) es
+`2026_09_16_000004_insert_initial_rbac_catalog.php`. No es un Laravel
+Seeder. No se afirma existencia en el repositorio ni carga persistente.
+
 ---
 
 ## 3. Orden de migraciones — 15 grupos (D-85)

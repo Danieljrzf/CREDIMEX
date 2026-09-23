@@ -121,6 +121,10 @@ seeds.
 repositorio (`c790e8d`) y 3B.3.1B quedó completada. Este documento
 conserva el cierre histórico de 3B.3.1A.2.
 
+**Actualización v2.6:** el diseño de 3B.3.1C (datos iniciales RBAC)
+quedó aprobado; la implementación permanece pendiente. Este documento
+conserva el cierre histórico de 3B.3.1A.2.
+
 ## Impacto en manuales
 
 Se actualiza la guía técnica del backend para distinguir `runFile()` y
