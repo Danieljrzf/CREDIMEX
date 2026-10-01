@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ClienteController;
+use App\Http\Controllers\CreditoController;
 use Illuminate\Support\Facades\Route;
 
 Route::post('/auth/login', [AuthController::class, 'login']);
@@ -15,5 +16,11 @@ Route::middleware('auth:api')->group(function (): void {
         ->whereUuid('id_publico');
     Route::patch('/clientes/{id_publico}', [ClienteController::class, 'update'])
         ->middleware('permiso:clientes.editar')
+        ->whereUuid('id_publico');
+
+    Route::get('/creditos', [CreditoController::class, 'index'])->middleware('permiso:creditos.consultar');
+    Route::post('/creditos', [CreditoController::class, 'store'])->middleware('permiso:creditos.autorizar');
+    Route::get('/creditos/{id_publico}', [CreditoController::class, 'show'])
+        ->middleware('permiso:creditos.consultar')
         ->whereUuid('id_publico');
 });
