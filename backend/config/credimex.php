@@ -53,4 +53,28 @@ return [
 
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | CREDIMEX — Protección de teléfonos
+    |--------------------------------------------------------------------------
+    |
+    | La versión identifica el par de claves (cifrado y HMAC). Las claves
+    | llegan en base64 de 32 bytes y no se derivan de APP_KEY.
+    |
+    */
+
+    'pii' => [
+
+        'key_version' => env('CREDIMEX_PII_KEY_VERSION'),
+
+        'encryption_keys' => [
+            1 => env('CREDIMEX_PII_ENCRYPTION_KEY_V1'),
+        ],
+
+        'hmac_keys' => [
+            1 => env('CREDIMEX_PII_HMAC_KEY_V1'),
+        ],
+
+    ],
+
 ];
