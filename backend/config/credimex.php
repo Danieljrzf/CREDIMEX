@@ -37,4 +37,20 @@ return [
 
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | CREDIMEX — Autenticación API
+    |--------------------------------------------------------------------------
+    |
+    | Duración inicial de la sesión móvil. El servicio lee esta clave;
+    | el valor no se duplica en el código de login.
+    |
+    */
+
+    'auth' => [
+
+        'sesion_ttl_minutos' => 1440,
+
+    ],
+
 ];
